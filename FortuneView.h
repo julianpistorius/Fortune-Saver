@@ -1,8 +1,8 @@
 //
-//  FortuneView.h
-//  Fortune
+//  PWTestView.h
+//  PWTest
 //
-//  Created by Patrick Wallace on 30/03/2015.
+//  Created by Patrick Wallace on 27/03/2015.
 //  Copyright (c) 2015 Patrick Wallace. All rights reserved.
 //
 
