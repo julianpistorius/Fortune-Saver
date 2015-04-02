@@ -1,6 +1,6 @@
 # TODO
 - [ ] Add parameters to the Quartz file so I can change them in the preferences.
-- [ ] Create an animation to move the text across.
+- [x] Create an animation to move the text across.
 - [ ] Add a preferences pane.
 - [ ] Add a list of the Core Image filters that can be applied.
 - [ ] Add a list of Quartz background animations the user can pick from (or which can be selected randomly after a time interval).

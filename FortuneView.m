@@ -24,7 +24,9 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
     NSFont          *_textFont;
     NSFont          *_attributionFont;
     UserPreferences *_userPreferences;
+    NSTimer         *_restoreTimer;
     NSUInteger _ticksToChangeQuote;
+    BOOL       _firstAnimation;
 }
 
 
@@ -52,6 +54,7 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
         
         _ticksToChangeQuote = TICKS_BEFORE_CHANGING_QUOTE;
         _userPreferences = [[UserPreferences alloc] init];
+        _firstAnimation = YES;
         
             // Create the font we'll use for text depending if we're drawing in the preview window or the screen.
         CGFloat fontRealSize = isPreview ? PREVIEW_FONT_SIZE : _userPreferences.fontSize; // Use a small font for the preview window, or a large one for the main window.
@@ -74,6 +77,8 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
 - (void)startAnimation {
     [super startAnimation];
 
+    _firstAnimation = YES;
+    
         // Create a sublayer and colour it.
     if (!_backgroundLayer) {
         _backgroundLayer = [self createBackgroundLayerAbove:self.layer];
@@ -90,9 +95,9 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
 
 - (void)animateOneFrame {
         // Move the text layer relative to its parent each animation tick.
-    [self positionTextLayerRandomly];
-    
-        // Animation - Fade out + expand, then Fade in + contract at new position.
+    BOOL showAnimation = !_firstAnimation;
+    _firstAnimation = NO;
+    [self positionTextLayerRandomlyAnimated:showAnimation];
     
         // Check if we need to change the text yet.
     _ticksToChangeQuote--;
@@ -141,9 +146,9 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
 
     CATextLayer *tl = [[CATextLayer alloc] init];
     [self sizeTextLayer:tl parentBounds:self.bounds];
-    [self positionTextLayerRandomly];
+    [self positionTextLayerRandomlyAnimated:NO];
     
-    tl.string = self.randomAttributedQuoteString;
+    tl.string = [self randomAttributedQuoteString];
     tl.wrapped = YES;
     tl.backgroundColor = [NSColor colorWithWhite:1.0 alpha:0.0].CGColor; // transparent background.
     tl.anchorPoint = CGPointMake(0, 0);
@@ -164,9 +169,14 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
 }
 
     /// Sets the position of the text layer randomly, ensuring it will always appear on-screen.
-- (void)positionTextLayerRandomly {
-    _textLayer.position = CGPointMake(SSRandomFloatBetween(0.0, self.bounds.size.width  * 0.25),
+- (void)positionTextLayerRandomlyAnimated: (BOOL)animated {
+    CGPoint newPosition = CGPointMake(SSRandomFloatBetween(0.0, self.bounds.size.width  * 0.25),
                                       SSRandomFloatBetween(0.0, self.bounds.size.height * 0.5 ));
+    if (animated) {
+        [self animateToPosition:newPosition];
+    } else {
+        _textLayer.position = newPosition;
+    }
 }
 
     /// Set the size of the text layer to an appropriate amount (about 2/3 of the screen).
@@ -186,6 +196,52 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
     }
 }
 
+    /// Trigger a text animation moving the text to NEWPOSITION.
+- (void)animateToPosition: (CGPoint)newPosition {
+    if (_textLayer) {
+        
+        CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+        positionAnimation.fromValue = [NSValue valueWithPoint:_textLayer.position];
+        positionAnimation.toValue = [NSValue valueWithPoint:newPosition];
+        
+        CABasicAnimation *fadeAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        fadeAnimation.fromValue = [NSNumber numberWithFloat:1.0];
+        fadeAnimation.toValue = [NSNumber numberWithFloat:0.0];
+        fadeAnimation.duration = 1.0;
+        
+        CAAnimationGroup *animationGroup = [[CAAnimationGroup alloc] init];
+        animationGroup.animations = @[fadeAnimation, positionAnimation];
+        animationGroup.duration = 2.0;
+        
+        [_textLayer addAnimation:animationGroup forKey:@"TextAdjustment"];
+        
+            // Create a timer to update the layer with the new values once the animation has completed.  I want a pause between the layer disappearing and reappearing in the new position, so I set the timer to fire after the layer completes.
+        _restoreTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
+                                                         target:self
+                                                       selector:@selector(movementComplete:)
+                                                       userInfo:[NSValue valueWithPoint:newPosition]
+                                                        repeats:NO];
+        
+            // Hide the layer. When the timer fires I'll undo this and make the layer visible again as well as updating the other properties.
+        _textLayer.opacity = 0.0;
+    }
+}
+
+    /// Triggered by the timer callback. This method moves the text layer into the position to match the end of the animation.
+- (void)movementComplete:(NSTimer *)timer {
+        // Final layer state when animation completes - reset it to the new position with no scaling, fully opaque.  The new position is taken from the userInfo property on the timer.
+    NSValue *v = timer.userInfo;
+    CGPoint newPosition = v.pointValue;
+    if (_textLayer) {
+        _textLayer.opacity = 1.0;
+        _textLayer.position = newPosition;
+    }
+    NSAssert(timer == _restoreTimer, @"Timer %@ doesn't match the timer we set: %@", timer, _restoreTimer);
+    if (_restoreTimer) {
+        [_restoreTimer invalidate];
+    }
+    _restoreTimer = nil;
+}
 
     /// Produce a random quote, loading the quotes file if necessary.
 - (Quote *)randomQuote {
