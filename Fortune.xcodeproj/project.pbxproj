@@ -14,6 +14,10 @@
 		57F26EA41AC9D784008A9E77 /* NullAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 57F26E9D1AC9D784008A9E77 /* NullAction.m */; };
 		57F26EA51AC9D784008A9E77 /* thumbnail.png in Resources */ = {isa = PBXBuildFile; fileRef = 57F26E9E1AC9D784008A9E77 /* thumbnail.png */; };
 		57F26EA61AC9D784008A9E77 /* thumbnail@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 57F26E9F1AC9D784008A9E77 /* thumbnail@2x.png */; };
+		57F26EAA1ACCCC48008A9E77 /* UserPreferences.h in Headers */ = {isa = PBXBuildFile; fileRef = 57F26EA81ACCCC48008A9E77 /* UserPreferences.h */; };
+		57F26EAB1ACCCC48008A9E77 /* UserPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 57F26EA91ACCCC48008A9E77 /* UserPreferences.m */; };
+		57F26EAE1ACCCDBC008A9E77 /* Quote.h in Headers */ = {isa = PBXBuildFile; fileRef = 57F26EAC1ACCCDBC008A9E77 /* Quote.h */; };
+		57F26EAF1ACCCDBC008A9E77 /* Quote.m in Sources */ = {isa = PBXBuildFile; fileRef = 57F26EAD1ACCCDBC008A9E77 /* Quote.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +30,11 @@
 		57F26E9D1AC9D784008A9E77 /* NullAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NullAction.m; sourceTree = "<group>"; };
 		57F26E9E1AC9D784008A9E77 /* thumbnail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = thumbnail.png; path = ../thumbnail.png; sourceTree = "<group>"; };
 		57F26E9F1AC9D784008A9E77 /* thumbnail@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "thumbnail@2x.png"; path = "../thumbnail@2x.png"; sourceTree = "<group>"; };
+		57F26EA71ACCC983008A9E77 /* Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Notes.md; sourceTree = "<group>"; };
+		57F26EA81ACCCC48008A9E77 /* UserPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserPreferences.h; sourceTree = "<group>"; };
+		57F26EA91ACCCC48008A9E77 /* UserPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserPreferences.m; sourceTree = "<group>"; };
+		57F26EAC1ACCCDBC008A9E77 /* Quote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quote.h; sourceTree = "<group>"; };
+		57F26EAD1ACCCDBC008A9E77 /* Quote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Quote.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,8 +51,13 @@
 		57F26E811AC9D711008A9E77 = {
 			isa = PBXGroup;
 			children = (
+				57F26EA71ACCC983008A9E77 /* Notes.md */,
 				57F26E9A1AC9D784008A9E77 /* FortuneView.h */,
 				57F26E9B1AC9D784008A9E77 /* FortuneView.m */,
+				57F26EAC1ACCCDBC008A9E77 /* Quote.h */,
+				57F26EAD1ACCCDBC008A9E77 /* Quote.m */,
+				57F26EA81ACCCC48008A9E77 /* UserPreferences.h */,
+				57F26EA91ACCCC48008A9E77 /* UserPreferences.m */,
 				57F26E9C1AC9D784008A9E77 /* NullAction.h */,
 				57F26E9D1AC9D784008A9E77 /* NullAction.m */,
 				57F26E8D1AC9D711008A9E77 /* Fortune */,
@@ -85,8 +99,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				57F26EAA1ACCCC48008A9E77 /* UserPreferences.h in Headers */,
 				57F26EA11AC9D784008A9E77 /* FortuneView.h in Headers */,
 				57F26EA31AC9D784008A9E77 /* NullAction.h in Headers */,
+				57F26EAE1ACCCDBC008A9E77 /* Quote.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,6 +176,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				57F26EAF1ACCCDBC008A9E77 /* Quote.m in Sources */,
+				57F26EAB1ACCCC48008A9E77 /* UserPreferences.m in Sources */,
 				57F26EA41AC9D784008A9E77 /* NullAction.m in Sources */,
 				57F26EA21AC9D784008A9E77 /* FortuneView.m in Sources */,
 			);

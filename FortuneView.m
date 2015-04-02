@@ -10,50 +10,27 @@
 @import AppKit;
 #import "FortuneView.h"
 #import "NullAction.h"
+#import "UserPreferences.h"
+#import "Quote.h"
 
 static const NSUInteger TICK_INTERVAL = 30.0;  // One 'tick' per 30 seconds.
 static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30 seconds, so this is 10 minutes.
 
-@interface PWQuote : NSObject
-@property (nonatomic, readonly) NSString *text;
-@property (nonatomic, readonly) NSString *attribution;
--(instancetype) initWithText:(NSString*)text attribution:(NSString*)attribution;
-@end
-
-
-@implementation PWQuote
-@synthesize text = _text, attribution = _attribution;
--(instancetype) initWithText:(NSString*)text attribution:(NSString*)attribution {
-    self = [super init];
-    if(!self) { return nil; }
-    _text = text ? text : @"";
-    _attribution = attribution ? attribution : @"";
-    return self;
-}
-@end
-
-#pragma mark -
 
 @interface FortuneView () {
-    CALayer *_backgroundLayer;
-    CATextLayer *_textLayer;
-    NSMutableArray *_allQuotes;
-    NSFont *_textFont;
-    NSFont *_attributionFont;
+    CALayer         *_backgroundLayer;
+    CATextLayer     *_textLayer;
+    NSArray         *_allQuotes;  // Of type Quote
+    NSFont          *_textFont;
+    NSFont          *_attributionFont;
+    UserPreferences *_userPreferences;
     NSUInteger _ticksToChangeQuote;
 }
 
-#pragma mark Properties which will eventually be pulled from the preferences.
-@property (nonatomic, readonly) NSColor *textColour, *attributionColour;
-@property (nonatomic, readonly) NSURL *documentFileURL;
-@property (nonatomic, readonly) NSString *fontName;
-@property (nonatomic, readonly) CGFloat fontSize;
 
 #pragma mark Private properties for readability.
-@property (nonatomic, readonly) PWQuote *randomQuote;
+@property (nonatomic, readonly) Quote *randomQuote;
 @property (nonatomic, readonly) NSAttributedString *randomAttributedQuoteString;
-@property (nonatomic, readonly) NSString *bundleIdentifier;
-@property (nonatomic, readonly) NSArray *allQuotes;  // Of type Quote
 @end
 
 #pragma mark -
@@ -61,7 +38,6 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
 static const CGFloat PREVIEW_FONT_SIZE = 12;
 
 @implementation FortuneView
-@synthesize documentFileURL = _documentFileURL;
 
 #pragma mark ScreensaverView method overrides.
 
@@ -74,11 +50,14 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
         self.layerUsesCoreImageFilters = YES;
         
+        _ticksToChangeQuote = TICKS_BEFORE_CHANGING_QUOTE;
+        _userPreferences = [[UserPreferences alloc] init];
+        
             // Create the font we'll use for text depending if we're drawing in the preview window or the screen.
-        CGFloat fontRealSize = isPreview ? PREVIEW_FONT_SIZE : self.fontSize; // Use a small font for the preview window, or a large one for the main window.
-        _textFont = [NSFont fontWithName:self.fontName size:fontRealSize];
+        CGFloat fontRealSize = isPreview ? PREVIEW_FONT_SIZE : _userPreferences.fontSize; // Use a small font for the preview window, or a large one for the main window.
+        _textFont = [NSFont fontWithName:_userPreferences.fontName size:fontRealSize];
         if (!_textFont) { // Default font in case the specified one is not found.
-            NSLog(@"Font %@ size %d not found, using system default", self.fontName, (int)fontRealSize);
+            NSLog(@"Font %@ size %d not found, using system default", _userPreferences.fontName, (int)fontRealSize);
             _textFont = [NSFont systemFontOfSize:fontRealSize];
         }
             // Ditto for attributions
@@ -86,9 +65,8 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
             _attributionFont = [_textFont copy];
         } else {
             CGFloat attributionFontSize = fontRealSize - 10.0;
-            _attributionFont = [NSFont fontWithName:self.fontName size:attributionFontSize];
+            _attributionFont = [NSFont fontWithName:_userPreferences.fontName size:attributionFontSize];
         }
-        _ticksToChangeQuote = TICKS_BEFORE_CHANGING_QUOTE;
     }
     return self;
 }
@@ -137,39 +115,14 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
     return YES;
 }
 
-#pragma mark Preference attributes
-
-- (NSString *)fontName { return @"Futura"; }
-- (CGFloat) fontSize { return 40; }
-- (NSColor *)textColour { return /*[NSColor colorWithWhite:1.0 alpha:0.5];*/ [[NSColor blackColor] colorWithAlphaComponent:0.5]; }
-- (NSColor *)attributionColour { return /*[[NSColor redColor] colorWithAlphaComponent:0.75]*/ [NSColor magentaColor]; }
-- (NSURL *)documentFileURL {
-    NSArray *urls = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
-    NSURL *documentsDirectoryURL = urls[0];
-    return [NSURL URLWithString:@"net-sigs.xml" relativeToURL:documentsDirectoryURL];
-}
 
 #pragma mark Private methods.
-
-- (PWQuote *)randomQuote {
-    NSArray *allQuotes = self.allQuotes;
-    if (allQuotes.count > 0) {
-        return allQuotes[SSRandomIntBetween(0, (int)allQuotes.count - 1)];
-    }
-        // Return a quote with explanatory text so the user can tell what went wrong.
-    return [[PWQuote alloc] initWithText:@"There are no quotes to display" attribution:nil];
-}
-
-- (NSString *)bundleIdentifier {
-    return @"Patrick-Wallace.Fortune";
-}
-
 
     /// Create a Quartz layer which shows an animated background.
 - (CALayer *) createBackgroundLayerAbove: (CALayer*)parentLayer {
     
-    NSBundle *saverBundle = [NSBundle bundleWithIdentifier:self.bundleIdentifier];
-    NSAssert(saverBundle, @"Bundle not found for identifier %@", self.bundleIdentifier);
+    NSBundle *saverBundle = [NSBundle bundleWithIdentifier:_userPreferences.bundleIdentifier];
+    NSAssert(saverBundle, @"Bundle not found for identifier %@", _userPreferences.bundleIdentifier);
     NSString *compositionFile = [saverBundle pathForResource:@"Background" ofType:@"qtz"];
     NSAssert(compositionFile, @"Bundle %@ has no Background.qtz object.", saverBundle);
     CALayer *backgroundLayer = [QCCompositionLayer compositionLayerWithFile:compositionFile];
@@ -233,53 +186,37 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
     }
 }
 
+
+    /// Produce a random quote, loading the quotes file if necessary.
+- (Quote *)randomQuote {
+    if (!_allQuotes) {
+        _allQuotes = [Quote loadQuotes:_userPreferences.documentFileURL];
+    }
+    if (_allQuotes.count > 0) {
+        return _allQuotes[SSRandomIntBetween(0, (int)_allQuotes.count - 1)];
+    }
+        // Return a quote with explanatory text so the user can tell what went wrong.
+    return [[Quote alloc] initWithText:@"There are no quotes to display" attribution:nil];
+}
+
+
     /// Create and return a random attributed string containing the text and attributions in their appropriate colours.
 - (NSAttributedString *)randomAttributedQuoteString {
-    PWQuote *quote = self.randomQuote;
+    Quote *quote = self.randomQuote;
     NSString *fullTextString = [NSString stringWithFormat:@"%@\n", quote.text];
     NSDictionary *textStringAttributes = @{ NSFontAttributeName : _textFont,
-                                            NSForegroundColorAttributeName : self.textColour };
+                                            NSForegroundColorAttributeName : _userPreferences.textColour };
     
     NSMutableAttributedString *quoteString = [[NSMutableAttributedString alloc] initWithString:fullTextString attributes:textStringAttributes];
     
     if (quote.attribution.length > 0) {
         NSDictionary *attributionStringAttributes = @{NSFontAttributeName : _attributionFont,
-                                                      NSForegroundColorAttributeName : self.attributionColour };
+                                                      NSForegroundColorAttributeName : _userPreferences.attributionColour };
         NSString *fullAttributionString = [NSString stringWithFormat:@"\t—%@", quote.attribution];
         NSAttributedString *attributionString = [[NSAttributedString alloc] initWithString:fullAttributionString attributes:attributionStringAttributes];
         [quoteString appendAttributedString:attributionString];
     }
     return quoteString;
-}
-
-    /// Load the quotes from the user's XML document file and return an array of PWQuote objects.
-- (NSArray *)allQuotes {
-    if (_allQuotes) { return _allQuotes; }
-    NSError *error = nil;
-    NSXMLDocument *document = [[NSXMLDocument alloc] initWithContentsOfURL:self.documentFileURL
-                                                                   options:0
-                                                                     error:&error];
-    if (!document) { // Return the error as the only text, so it will appear on the screen.
-        PWQuote *quote = [[PWQuote alloc] initWithText:error.description attribution:nil];
-        return @[quote];
-    }
-        // Otherwise, copy the text, attribution values into an array.
-    _allQuotes = [NSMutableArray array];
-    NSXMLElement *root = document.rootElement;
-    NSAssert([root.name isEqualToString:@"Quotes"], @"XML Root node %@ has name %@, should be 'Quotes'", root, root.name);
-    NSArray *allQuoteElements = [root elementsForName:@"Quote"];
-    NSAssert(allQuoteElements, @"XML root %@ has no elements named 'Quote'", root);
-    for (NSXMLElement *quoteElement in allQuoteElements) {
-        NSString *text = nil, *attribution = nil;
-        for (NSXMLNode *node in quoteElement.children) {
-            NSAssert([node.name isEqualToString:@"Text"] || [node.name isEqualToString:@"Attribution"], @"Node %@ is unrecognised.", node);
-            if      ([node.name isEqualToString:@"Text"]       ) { text        = node.stringValue; }
-            else if ([node.name isEqualToString:@"Attribution"]) { attribution = node.stringValue; }
-        }
-        PWQuote *quote = [[PWQuote alloc] initWithText:text attribution:attribution];
-        [_allQuotes addObject:quote];
-    }
-    return _allQuotes;
 }
 
 @end
