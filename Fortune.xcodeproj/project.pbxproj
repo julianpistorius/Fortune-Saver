@@ -148,8 +148,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				57F26EA51AC9D784008A9E77 /* thumbnail.png in Resources */,
-				57F26EA01AC9D784008A9E77 /* Background.qtz in Resources */,
 				57F26EA61AC9D784008A9E77 /* thumbnail@2x.png in Resources */,
+				57F26EA01AC9D784008A9E77 /* Background.qtz in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,6 +283,7 @@
 				57F26E981AC9D711008A9E77 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

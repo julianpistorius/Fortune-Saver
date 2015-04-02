@@ -11,6 +11,9 @@
 #import "FortuneView.h"
 #import "NullAction.h"
 
+static const NSUInteger TICK_INTERVAL = 30.0;  // One 'tick' per 30 seconds.
+static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30 seconds, so this is 10 minutes.
+
 @interface PWQuote : NSObject
 @property (nonatomic, readonly) NSString *text;
 @property (nonatomic, readonly) NSString *attribution;
@@ -33,9 +36,11 @@
 
 @interface FortuneView () {
     CALayer *_backgroundLayer;
-    CALayer *_textLayer;
+    CATextLayer *_textLayer;
     NSMutableArray *_allQuotes;
-    NSFont *_textFont, *_attributionFont;
+    NSFont *_textFont;
+    NSFont *_attributionFont;
+    NSUInteger _ticksToChangeQuote;
 }
 
 #pragma mark Properties which will eventually be pulled from the preferences.
@@ -46,7 +51,7 @@
 
 #pragma mark Private properties for readability.
 @property (nonatomic, readonly) PWQuote *randomQuote;
-@property (nonatomic, readonly) NSAttributedString *fullQuoteString;
+@property (nonatomic, readonly) NSAttributedString *randomAttributedQuoteString;
 @property (nonatomic, readonly) NSString *bundleIdentifier;
 @property (nonatomic, readonly) NSArray *allQuotes;  // Of type Quote
 @end
@@ -64,7 +69,7 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
 {
     self = [super initWithFrame:frame isPreview:isPreview];
     if (self) {
-        [self setAnimationTimeInterval:30.0]; // One 'tick' per 30 seconds. Note the Quartz composer uses it's own animation clock and ignores this value.
+        [self setAnimationTimeInterval:TICK_INTERVAL]; // Note the Quartz composer uses it's own animation clock and ignores this value.
         self.wantsLayer = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
         self.layerUsesCoreImageFilters = YES;
@@ -83,6 +88,7 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
             CGFloat attributionFontSize = fontRealSize - 10.0;
             _attributionFont = [NSFont fontWithName:self.fontName size:attributionFontSize];
         }
+        _ticksToChangeQuote = TICKS_BEFORE_CHANGING_QUOTE;
     }
     return self;
 }
@@ -110,7 +116,12 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
     
         // Animation - Fade out + expand, then Fade in + contract at new position.
     
-    
+        // Check if we need to change the text yet.
+    _ticksToChangeQuote--;
+    if (_ticksToChangeQuote == 0 && _textLayer) {
+        _textLayer.string = self.randomAttributedQuoteString;
+        _ticksToChangeQuote = TICKS_BEFORE_CHANGING_QUOTE;
+    }
     return;
 }
 
@@ -173,13 +184,13 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
 }
 
     /// Create a text layer with a transparent background.
-- (CALayer *)createTextLayerAbove: (CALayer *)parentLayer {
+- (CATextLayer *)createTextLayerAbove: (CALayer *)parentLayer {
 
     CATextLayer *tl = [[CATextLayer alloc] init];
     [self sizeTextLayer:tl parentBounds:self.bounds];
     [self positionTextLayerRandomly];
     
-    tl.string = self.fullQuoteString;
+    tl.string = self.randomAttributedQuoteString;
     tl.wrapped = YES;
     tl.backgroundColor = [NSColor colorWithWhite:1.0 alpha:0.0].CGColor; // transparent background.
     tl.anchorPoint = CGPointMake(0, 0);
@@ -223,7 +234,7 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
 }
 
     /// Create and return a random attributed string containing the text and attributions in their appropriate colours.
-- (NSAttributedString *)fullQuoteString {
+- (NSAttributedString *)randomAttributedQuoteString {
     PWQuote *quote = self.randomQuote;
     NSString *fullTextString = [NSString stringWithFormat:@"%@\n", quote.text];
     NSDictionary *textStringAttributes = @{ NSFontAttributeName : _textFont,
