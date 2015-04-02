@@ -50,6 +50,7 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
         self.wantsLayer = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
         self.layerUsesCoreImageFilters = YES;
+        [self seedRandomNumberGenerator];
         
         _ticksToChangeQuote = TICKS_BEFORE_CHANGING_QUOTE;
         _userPreferences = [[UserPreferences alloc] init];
@@ -64,7 +65,6 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
             _textFont = _userPreferences.textFont;
             _attributionFont = _userPreferences.attributionFont;
         }
-            // Pick a default font in case the user-specified one was not found.
         NSAssert(_textFont, @"Font %@ not found in the system preferences", _userPreferences.textFontDetails);
         NSAssert(_attributionFont, @"Font %@ not found in the system preferences", _userPreferences.attributionFontDetails);
     }
@@ -127,6 +127,12 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
 
 
 #pragma mark Private methods.
+
+- (void)seedRandomNumberGenerator {
+    NSTimeInterval timeInterval = [NSDate date].timeIntervalSinceReferenceDate;
+    unsigned int seedValue = timeInterval * 1000;
+    srandom(seedValue);
+}
 
     /// Create a Quartz layer which shows an animated background.
 - (CALayer *) createBackgroundLayerAbove: (CALayer*)parentLayer {
