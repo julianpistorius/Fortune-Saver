@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		57201A0F1ACD0DC40016F6ED /* Extensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 57201A0D1ACD0DC40016F6ED /* Extensions.h */; };
+		57201A101ACD0DC40016F6ED /* Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 57201A0E1ACD0DC40016F6ED /* Extensions.m */; };
 		57F26EA01AC9D784008A9E77 /* Background.qtz in Resources */ = {isa = PBXBuildFile; fileRef = 57F26E991AC9D784008A9E77 /* Background.qtz */; };
 		57F26EA11AC9D784008A9E77 /* FortuneView.h in Headers */ = {isa = PBXBuildFile; fileRef = 57F26E9A1AC9D784008A9E77 /* FortuneView.h */; };
 		57F26EA21AC9D784008A9E77 /* FortuneView.m in Sources */ = {isa = PBXBuildFile; fileRef = 57F26E9B1AC9D784008A9E77 /* FortuneView.m */; };
@@ -18,23 +20,42 @@
 		57F26EAB1ACCCC48008A9E77 /* UserPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 57F26EA91ACCCC48008A9E77 /* UserPreferences.m */; };
 		57F26EAE1ACCCDBC008A9E77 /* Quote.h in Headers */ = {isa = PBXBuildFile; fileRef = 57F26EAC1ACCCDBC008A9E77 /* Quote.h */; };
 		57F26EAF1ACCCDBC008A9E77 /* Quote.m in Sources */ = {isa = PBXBuildFile; fileRef = 57F26EAD1ACCCDBC008A9E77 /* Quote.m */; };
+		57F26EB11ACCE3E7008A9E77 /* PreferencesPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 57F26EB01ACCE3E7008A9E77 /* PreferencesPanel.xib */; };
+		57F26EB81ACCF492008A9E77 /* PreferencesWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 57F26EB61ACCF492008A9E77 /* PreferencesWindowController.h */; };
+		57F26EB91ACCF492008A9E77 /* PreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 57F26EB71ACCF492008A9E77 /* PreferencesWindowController.m */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		57F26EEB1ACD00EA008A9E77 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 57F26EE61ACD00EA008A9E77 /* TestPreferences.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 57F26EC31ACD00E9008A9E77;
+			remoteInfo = TestPreferences;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		57F26E8B1AC9D711008A9E77 /* Fortune.saver */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Fortune.saver; sourceTree = BUILT_PRODUCTS_DIR; };
+		57201A0D1ACD0DC40016F6ED /* Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Extensions.h; sourceTree = "<group>"; };
+		57201A0E1ACD0DC40016F6ED /* Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Extensions.m; sourceTree = "<group>"; };
+		57F26E8B1AC9D711008A9E77 /* PWFortune.saver */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PWFortune.saver; sourceTree = BUILT_PRODUCTS_DIR; };
 		57F26E8F1AC9D711008A9E77 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		57F26E991AC9D784008A9E77 /* Background.qtz */ = {isa = PBXFileReference; lastKnownFileType = "video.quartz-composer"; name = Background.qtz; path = ../Background.qtz; sourceTree = "<group>"; };
-		57F26E9A1AC9D784008A9E77 /* FortuneView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FortuneView.h; sourceTree = "<group>"; };
-		57F26E9B1AC9D784008A9E77 /* FortuneView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FortuneView.m; sourceTree = "<group>"; };
-		57F26E9C1AC9D784008A9E77 /* NullAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NullAction.h; sourceTree = "<group>"; };
-		57F26E9D1AC9D784008A9E77 /* NullAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NullAction.m; sourceTree = "<group>"; };
+		57F26E9A1AC9D784008A9E77 /* FortuneView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FortuneView.h; sourceTree = SOURCE_ROOT; };
+		57F26E9B1AC9D784008A9E77 /* FortuneView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FortuneView.m; sourceTree = SOURCE_ROOT; };
+		57F26E9C1AC9D784008A9E77 /* NullAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NullAction.h; path = ../NullAction.h; sourceTree = "<group>"; };
+		57F26E9D1AC9D784008A9E77 /* NullAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NullAction.m; path = ../NullAction.m; sourceTree = "<group>"; };
 		57F26E9E1AC9D784008A9E77 /* thumbnail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = thumbnail.png; path = ../thumbnail.png; sourceTree = "<group>"; };
 		57F26E9F1AC9D784008A9E77 /* thumbnail@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "thumbnail@2x.png"; path = "../thumbnail@2x.png"; sourceTree = "<group>"; };
 		57F26EA71ACCC983008A9E77 /* Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Notes.md; sourceTree = "<group>"; };
-		57F26EA81ACCCC48008A9E77 /* UserPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserPreferences.h; sourceTree = "<group>"; };
-		57F26EA91ACCCC48008A9E77 /* UserPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserPreferences.m; sourceTree = "<group>"; };
-		57F26EAC1ACCCDBC008A9E77 /* Quote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quote.h; sourceTree = "<group>"; };
-		57F26EAD1ACCCDBC008A9E77 /* Quote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Quote.m; sourceTree = "<group>"; };
+		57F26EA81ACCCC48008A9E77 /* UserPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UserPreferences.h; path = ../UserPreferences.h; sourceTree = "<group>"; };
+		57F26EA91ACCCC48008A9E77 /* UserPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UserPreferences.m; path = ../UserPreferences.m; sourceTree = "<group>"; };
+		57F26EAC1ACCCDBC008A9E77 /* Quote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Quote.h; path = ../Quote.h; sourceTree = "<group>"; };
+		57F26EAD1ACCCDBC008A9E77 /* Quote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Quote.m; path = ../Quote.m; sourceTree = "<group>"; };
+		57F26EB01ACCE3E7008A9E77 /* PreferencesPanel.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesPanel.xib; sourceTree = "<group>"; };
+		57F26EB61ACCF492008A9E77 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
+		57F26EB71ACCF492008A9E77 /* PreferencesWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesWindowController.m; sourceTree = "<group>"; };
+		57F26EE61ACD00EA008A9E77 /* TestPreferences.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TestPreferences.xcodeproj; path = TestPreferences/TestPreferences/TestPreferences.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,15 +72,9 @@
 		57F26E811AC9D711008A9E77 = {
 			isa = PBXGroup;
 			children = (
+				57F26EE61ACD00EA008A9E77 /* TestPreferences.xcodeproj */,
 				57F26EA71ACCC983008A9E77 /* Notes.md */,
-				57F26E9A1AC9D784008A9E77 /* FortuneView.h */,
-				57F26E9B1AC9D784008A9E77 /* FortuneView.m */,
-				57F26EAC1ACCCDBC008A9E77 /* Quote.h */,
-				57F26EAD1ACCCDBC008A9E77 /* Quote.m */,
-				57F26EA81ACCCC48008A9E77 /* UserPreferences.h */,
-				57F26EA91ACCCC48008A9E77 /* UserPreferences.m */,
-				57F26E9C1AC9D784008A9E77 /* NullAction.h */,
-				57F26E9D1AC9D784008A9E77 /* NullAction.m */,
+				57F26EB01ACCE3E7008A9E77 /* PreferencesPanel.xib */,
 				57F26E8D1AC9D711008A9E77 /* Fortune */,
 				57F26E8C1AC9D711008A9E77 /* Products */,
 			);
@@ -68,7 +83,7 @@
 		57F26E8C1AC9D711008A9E77 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				57F26E8B1AC9D711008A9E77 /* Fortune.saver */,
+				57F26E8B1AC9D711008A9E77 /* PWFortune.saver */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,6 +91,18 @@
 		57F26E8D1AC9D711008A9E77 /* Fortune */ = {
 			isa = PBXGroup;
 			children = (
+				57201A0D1ACD0DC40016F6ED /* Extensions.h */,
+				57201A0E1ACD0DC40016F6ED /* Extensions.m */,
+				57F26E9A1AC9D784008A9E77 /* FortuneView.h */,
+				57F26E9B1AC9D784008A9E77 /* FortuneView.m */,
+				57F26E9C1AC9D784008A9E77 /* NullAction.h */,
+				57F26E9D1AC9D784008A9E77 /* NullAction.m */,
+				57F26EB61ACCF492008A9E77 /* PreferencesWindowController.h */,
+				57F26EB71ACCF492008A9E77 /* PreferencesWindowController.m */,
+				57F26EAC1ACCCDBC008A9E77 /* Quote.h */,
+				57F26EAD1ACCCDBC008A9E77 /* Quote.m */,
+				57F26EA81ACCCC48008A9E77 /* UserPreferences.h */,
+				57F26EA91ACCCC48008A9E77 /* UserPreferences.m */,
 				57F26E8E1AC9D711008A9E77 /* Supporting Files */,
 			);
 			path = Fortune;
@@ -92,6 +119,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		57F26EE71ACD00EA008A9E77 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				57F26EEC1ACD00EA008A9E77 /* TestPreferences.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -101,6 +136,8 @@
 			files = (
 				57F26EAA1ACCCC48008A9E77 /* UserPreferences.h in Headers */,
 				57F26EA11AC9D784008A9E77 /* FortuneView.h in Headers */,
+				57201A0F1ACD0DC40016F6ED /* Extensions.h in Headers */,
+				57F26EB81ACCF492008A9E77 /* PreferencesWindowController.h in Headers */,
 				57F26EA31AC9D784008A9E77 /* NullAction.h in Headers */,
 				57F26EAE1ACCCDBC008A9E77 /* Quote.h in Headers */,
 			);
@@ -124,7 +161,7 @@
 			);
 			name = Fortune;
 			productName = Fortune;
-			productReference = 57F26E8B1AC9D711008A9E77 /* Fortune.saver */;
+			productReference = 57F26E8B1AC9D711008A9E77 /* PWFortune.saver */;
 			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
@@ -151,12 +188,28 @@
 			mainGroup = 57F26E811AC9D711008A9E77;
 			productRefGroup = 57F26E8C1AC9D711008A9E77 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 57F26EE71ACD00EA008A9E77 /* Products */;
+					ProjectRef = 57F26EE61ACD00EA008A9E77 /* TestPreferences.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				57F26E8A1AC9D711008A9E77 /* Fortune */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		57F26EEC1ACD00EA008A9E77 /* TestPreferences.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = TestPreferences.app;
+			remoteRef = 57F26EEB1ACD00EA008A9E77 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		57F26E891AC9D711008A9E77 /* Resources */ = {
@@ -166,6 +219,7 @@
 				57F26EA51AC9D784008A9E77 /* thumbnail.png in Resources */,
 				57F26EA61AC9D784008A9E77 /* thumbnail@2x.png in Resources */,
 				57F26EA01AC9D784008A9E77 /* Background.qtz in Resources */,
+				57F26EB11ACCE3E7008A9E77 /* PreferencesPanel.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -178,6 +232,8 @@
 			files = (
 				57F26EAF1ACCCDBC008A9E77 /* Quote.m in Sources */,
 				57F26EAB1ACCCC48008A9E77 /* UserPreferences.m in Sources */,
+				57F26EB91ACCF492008A9E77 /* PreferencesWindowController.m in Sources */,
+				57201A101ACD0DC40016F6ED /* Extensions.m in Sources */,
 				57F26EA41AC9D784008A9E77 /* NullAction.m in Sources */,
 				57F26EA21AC9D784008A9E77 /* FortuneView.m in Sources */,
 			);
@@ -266,7 +322,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Fortune/Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Screen Savers";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = PWFortune;
 				WRAPPER_EXTENSION = saver;
 			};
 			name = Debug;
@@ -277,7 +333,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Fortune/Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Screen Savers";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = PWFortune;
 				WRAPPER_EXTENSION = saver;
 			};
 			name = Release;

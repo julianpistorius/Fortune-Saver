@@ -14,9 +14,18 @@
 @property (nonatomic, readonly) NSString *bundleIdentifier;
 
 #pragma mark Properties which will eventually be pulled from the preferences.
-@property (nonatomic, readonly) NSColor *textColour, *attributionColour;
+@property (nonatomic, strong) NSColor *textColour, *attributionColour;
 @property (nonatomic, readonly) NSURL *documentFileURL;
-@property (nonatomic, readonly) NSString *fontName;
-@property (nonatomic, readonly) CGFloat fontSize;
+
+    /// Fonts specified
+@property (nonatomic, strong) NSFont *textFont, *attributionFont;
+
+    /// Text description of the font specified. For error messages and logs.
+@property (nonatomic, readonly) NSString *textFontDetails, *attributionFontDetails;
+
+- (void)synchronise;
 
 @end
+
+    // Keys for the application preferences.
+extern NSString * const kTextFont, *const kAttributionFont, *const kTextColour, *const kAttributionColour;

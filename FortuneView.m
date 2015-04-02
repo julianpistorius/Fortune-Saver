@@ -12,6 +12,7 @@
 #import "NullAction.h"
 #import "UserPreferences.h"
 #import "Quote.h"
+#import "PreferencesWindowController.h"
 
 static const NSUInteger TICK_INTERVAL = 30.0;  // One 'tick' per 30 seconds.
 static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30 seconds, so this is 10 minutes.
@@ -27,6 +28,8 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
     NSTimer         *_restoreTimer;
     NSUInteger _ticksToChangeQuote;
     BOOL       _firstAnimation;
+    
+    PreferencesWindowController *_prefsController;
 }
 
 
@@ -34,10 +37,6 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
 @property (nonatomic, readonly) Quote *randomQuote;
 @property (nonatomic, readonly) NSAttributedString *randomAttributedQuoteString;
 @end
-
-#pragma mark -
-
-static const CGFloat PREVIEW_FONT_SIZE = 12;
 
 @implementation FortuneView
 
@@ -57,19 +56,17 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
         _firstAnimation = YES;
         
             // Create the font we'll use for text depending if we're drawing in the preview window or the screen.
-        CGFloat fontRealSize = isPreview ? PREVIEW_FONT_SIZE : _userPreferences.fontSize; // Use a small font for the preview window, or a large one for the main window.
-        _textFont = [NSFont fontWithName:_userPreferences.fontName size:fontRealSize];
-        if (!_textFont) { // Default font in case the specified one is not found.
-            NSLog(@"Font %@ size %d not found, using system default", _userPreferences.fontName, (int)fontRealSize);
-            _textFont = [NSFont systemFontOfSize:fontRealSize];
+        _textFont = _attributionFont = nil;
+        if (isPreview) { // Use the default system font for the preview window.
+            _textFont = [NSFont systemFontOfSize:[NSFont systemFontSize]];
+            _attributionFont = _textFont;
+        } else { // Otherwise get the font from the preferences.
+            _textFont = _userPreferences.textFont;
+            _attributionFont = _userPreferences.attributionFont;
         }
-            // Ditto for attributions
-        if (isPreview) {
-            _attributionFont = [_textFont copy];
-        } else {
-            CGFloat attributionFontSize = fontRealSize - 10.0;
-            _attributionFont = [NSFont fontWithName:_userPreferences.fontName size:attributionFontSize];
-        }
+            // Pick a default font in case the user-specified one was not found.
+        NSAssert(_textFont, @"Font %@ not found in the system preferences", _userPreferences.textFontDetails);
+        NSAssert(_attributionFont, @"Font %@ not found in the system preferences", _userPreferences.attributionFontDetails);
     }
     return self;
 }
@@ -109,11 +106,19 @@ static const CGFloat PREVIEW_FONT_SIZE = 12;
 }
 
 - (BOOL)hasConfigureSheet {
-    return NO;
+    return YES;
 }
 
 - (NSWindow*)configureSheet {
-    return nil;
+    NSWindow *prefsWindow = nil;
+
+    if (!_prefsController) {
+        _prefsController = [[PreferencesWindowController alloc] initWithUserPreferences:_userPreferences];
+    }
+    NSAssert(_prefsController, @"PreferencesPanel failed to load.");
+    prefsWindow = _prefsController.window;
+    NSAssert(prefsWindow, @"PreferencesPanel controller %@ failed to create window.", _prefsController);
+    return prefsWindow;
 }
 
 + (BOOL)performGammaFade {
