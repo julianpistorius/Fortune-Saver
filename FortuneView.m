@@ -15,7 +15,7 @@
 #import "PreferencesWindowController.h"
 
 static const NSUInteger TICK_INTERVAL = 30.0;  // One 'tick' per 30 seconds.
-static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30 seconds, so this is 10 minutes.
+static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2; // Keep each message around once in case the user didn't get a chance to read it all the first time.
 
 
 @interface FortuneView () {
@@ -94,15 +94,15 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
         // Move the text layer relative to its parent each animation tick.
     BOOL showAnimation = !_firstAnimation;
     _firstAnimation = NO;
-    [self positionTextLayerRandomlyAnimated:showAnimation];
     
         // Check if we need to change the text yet.
+    BOOL changeText = NO;
     _ticksToChangeQuote--;
-    if (_ticksToChangeQuote == 0 && _textLayer) {
-        _textLayer.string = self.randomAttributedQuoteString;
+    if (_ticksToChangeQuote == 0) {
+        changeText = YES;
         _ticksToChangeQuote = TICKS_BEFORE_CHANGING_QUOTE;
     }
-    return;
+    [self updateTextLayerAnimated:showAnimation changeText:changeText];
 }
 
 - (BOOL)hasConfigureSheet {
@@ -131,6 +131,7 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
 - (void)seedRandomNumberGenerator {
     NSTimeInterval timeInterval = [NSDate date].timeIntervalSinceReferenceDate;
     unsigned int seedValue = timeInterval * 1000;
+    NSLog(@"Fortune: Seeded random number generator with %u", seedValue);
     srandom(seedValue);
 }
 
@@ -157,7 +158,7 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
 
     CATextLayer *tl = [[CATextLayer alloc] init];
     [self sizeTextLayer:tl parentBounds:self.bounds];
-    [self positionTextLayerRandomlyAnimated:NO];
+    [self updateTextLayerAnimated:NO changeText:YES];
     
     tl.string = [self randomAttributedQuoteString];
     tl.wrapped = YES;
@@ -179,14 +180,17 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
     return tl;
 }
 
-    /// Sets the position of the text layer randomly, ensuring it will always appear on-screen.
-- (void)positionTextLayerRandomlyAnimated: (BOOL)animated {
+    /// Sets the position of the text layer randomly, ensuring it will always appear on-screen. If CHANGETEXT is true, change the text while the layer is invisible. If ANIMATED is true, animate the changes.
+- (void)updateTextLayerAnimated: (BOOL)animated changeText:(BOOL) changeText {
     CGPoint newPosition = CGPointMake(SSRandomFloatBetween(0.0, self.bounds.size.width  * 0.25),
                                       SSRandomFloatBetween(0.0, self.bounds.size.height * 0.5 ));
     if (animated) {
-        [self animateToPosition:newPosition];
+        [self animateToPosition:newPosition changeText:changeText];
     } else {
         _textLayer.position = newPosition;
+        if (changeText) {
+            _textLayer.string = [self randomAttributedQuoteString];
+        }
     }
 }
 
@@ -207,8 +211,10 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
     }
 }
 
-    /// Trigger a text animation moving the text to NEWPOSITION.
-- (void)animateToPosition: (CGPoint)newPosition {
+NSString *const kNewPosition = @"New Position", *const kChangeText = @"Change Text";
+
+    /// Trigger a text animation moving the text to NEWPOSITION.  If CHANGETEXT is YES then refresh the text while the layer is inivisible.
+- (void)animateToPosition: (CGPoint)newPosition changeText:(BOOL)changeText {
     if (_textLayer) {
         
         CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
@@ -230,7 +236,8 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
         _restoreTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
                                                          target:self
                                                        selector:@selector(movementComplete:)
-                                                       userInfo:[NSValue valueWithPoint:newPosition]
+                                                       userInfo:@{kChangeText  : [NSNumber numberWithBool:changeText],
+                                                                  kNewPosition : [NSValue valueWithPoint:newPosition]}
                                                         repeats:NO];
         
             // Hide the layer. When the timer fires I'll undo this and make the layer visible again as well as updating the other properties.
@@ -241,11 +248,17 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
     /// Triggered by the timer callback. This method moves the text layer into the position to match the end of the animation.
 - (void)movementComplete:(NSTimer *)timer {
         // Final layer state when animation completes - reset it to the new position with no scaling, fully opaque.  The new position is taken from the userInfo property on the timer.
-    NSValue *v = timer.userInfo;
-    CGPoint newPosition = v.pointValue;
+    NSDictionary *userInfo = timer.userInfo;
+    CGPoint newPosition = ((NSValue *)userInfo[kNewPosition]).pointValue;
+    BOOL changeText = ((NSNumber *)userInfo[kChangeText]).boolValue;
     if (_textLayer) {
-        _textLayer.opacity = 1.0;
+            // If we need to change the text, do so while the layer is invisible.
+        if (changeText) {
+            _textLayer.string = [self randomAttributedQuoteString];
+        }
+            // Restore the layer's opacity once it is in the new position.
         _textLayer.position = newPosition;
+        _textLayer.opacity = 1.0;
     }
     NSAssert(timer == _restoreTimer, @"Timer %@ doesn't match the timer we set: %@", timer, _restoreTimer);
     if (_restoreTimer) {
@@ -260,7 +273,9 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2 * 10; // Each tick is 30
         _allQuotes = [Quote loadQuotes:_userPreferences.documentFileURL];
     }
     if (_allQuotes.count > 0) {
-        return _allQuotes[SSRandomIntBetween(0, (int)_allQuotes.count - 1)];
+        NSUInteger randomValue = SSRandomIntBetween(0, (int)_allQuotes.count - 1);
+        NSLog(@"Selected the %lu th quote from the list.",  (unsigned long)randomValue);
+        return _allQuotes[randomValue];
     }
         // Return a quote with explanatory text so the user can tell what went wrong.
     return [[Quote alloc] initWithText:@"There are no quotes to display" attribution:nil];

@@ -1,7 +1,7 @@
 # TODO
 - [ ] Add parameters to the Quartz file so I can change them in the preferences.
 - [x] Create an animation to move the text across.
-- [ ] Add a preferences pane.
+- [x] Add a preferences pane.
 - [ ] Add a list of the Core Image filters that can be applied.
 - [ ] Add a list of Quartz background animations the user can pick from (or which can be selected randomly after a time interval).
 
@@ -13,3 +13,5 @@ The screensaver view is a bit weird so modifying it directly is not recommended.
 The User Preferences and the System count as separate applications, so if you get the ‘default bundle’ for setting NSUserDefaults and retrieving them, the values you set will not be visible when the screensaver starts up properly. So instead hard-code the bundle-ID in the program somewhere and always refer to that.
 
 Screensavers do not use the normal AppIcon image when displayed. Instead provide two PNG files called 'thumbnail.png' and 'thumbnail@2x.png' which will be displayed.
+
+The screensaver API is supposed to seed the random generator via *srandom*() but it isn’t doing so.  I now do this manually using NSDate.intervalSinceReferenceDate * 1000 as the seed.
