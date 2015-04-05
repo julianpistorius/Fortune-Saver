@@ -11,6 +11,6 @@
 
 @interface PreferencesWindowController : NSWindowController
 
-- (instancetype)initWithUserPreferences: (UserPreferences *)userPreferences;
+- (instancetype)initWithUserPreferences: (UserPreferences *)userPreferences NS_DESIGNATED_INITIALIZER;
 
 @end

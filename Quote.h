@@ -14,7 +14,7 @@
 @property (nonatomic, readonly) NSString *attribution;
 
 
--(instancetype) initWithText:(NSString*)text attribution:(NSString*)attribution;
+-(instancetype) initWithText:(NSString*)text attribution:(NSString*)attribution NS_DESIGNATED_INITIALIZER;
 
 +(NSArray *)loadQuotes: (NSURL *)fileURL;
 

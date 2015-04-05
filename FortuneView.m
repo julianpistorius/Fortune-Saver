@@ -13,9 +13,11 @@
 #import "UserPreferences.h"
 #import "Quote.h"
 #import "PreferencesWindowController.h"
+#import "MoveAndFade.h"
+#import "ExpandAndFade.h"
 
 static const NSUInteger TICK_INTERVAL = 30.0;  // One 'tick' per 30 seconds.
-static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2; // Keep each message around once in case the user didn't get a chance to read it all the first time.
+static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message around a couple of times in case the user didn't get a chance to read it all the first time.
 
 
 @interface FortuneView () {
@@ -25,9 +27,10 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2; // Keep each message ar
     NSFont          *_textFont;
     NSFont          *_attributionFont;
     UserPreferences *_userPreferences;
-    NSTimer         *_restoreTimer;
     NSUInteger _ticksToChangeQuote;
     BOOL       _firstAnimation;
+    id<Transition> _moveAnimation;
+    id<Transition> _textReplaceAnimation;
     
     PreferencesWindowController *_prefsController;
 }
@@ -55,6 +58,8 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2; // Keep each message ar
         _ticksToChangeQuote = TICKS_BEFORE_CHANGING_QUOTE;
         _userPreferences = [[UserPreferences alloc] init];
         _firstAnimation = YES;
+        _moveAnimation = [[MoveAndFade alloc] init];
+        _textReplaceAnimation = [[ExpandAndFade alloc] init];
         
             // Create the font we'll use for text depending if we're drawing in the preview window or the screen.
         _textFont = _attributionFont = nil;
@@ -83,10 +88,15 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2; // Keep each message ar
     if (!_textLayer) {
         _textLayer = [self createTextLayerAbove:_backgroundLayer];
     }
+    
+    _moveAnimation.layer = _textLayer;
+    _textReplaceAnimation.layer = _textLayer;
 }
 
 - (void)stopAnimation {
     [super stopAnimation];
+    _moveAnimation.layer = nil;
+    _textReplaceAnimation.layer = nil;
     [self removeLayers];
 }
 
@@ -185,7 +195,12 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2; // Keep each message ar
     CGPoint newPosition = CGPointMake(SSRandomFloatBetween(0.0, self.bounds.size.width  * 0.25),
                                       SSRandomFloatBetween(0.0, self.bounds.size.height * 0.5 ));
     if (animated) {
-        [self animateToPosition:newPosition changeText:changeText];
+        if (changeText) {
+            _textReplaceAnimation.replacementText = [self randomAttributedQuoteString];
+            [_textReplaceAnimation animateToPosition:newPosition];
+        } else {
+            [_moveAnimation animateToPosition:newPosition];
+        }
     } else {
         _textLayer.position = newPosition;
         if (changeText) {
@@ -211,61 +226,7 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 2; // Keep each message ar
     }
 }
 
-NSString *const kNewPosition = @"New Position", *const kChangeText = @"Change Text";
 
-    /// Trigger a text animation moving the text to NEWPOSITION.  If CHANGETEXT is YES then refresh the text while the layer is inivisible.
-- (void)animateToPosition: (CGPoint)newPosition changeText:(BOOL)changeText {
-    if (_textLayer) {
-        
-        CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
-        positionAnimation.fromValue = [NSValue valueWithPoint:_textLayer.position];
-        positionAnimation.toValue = [NSValue valueWithPoint:newPosition];
-        
-        CABasicAnimation *fadeAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-        fadeAnimation.fromValue = [NSNumber numberWithFloat:1.0];
-        fadeAnimation.toValue = [NSNumber numberWithFloat:0.0];
-        fadeAnimation.duration = 1.0;
-        
-        CAAnimationGroup *animationGroup = [[CAAnimationGroup alloc] init];
-        animationGroup.animations = @[fadeAnimation, positionAnimation];
-        animationGroup.duration = 2.0;
-        
-        [_textLayer addAnimation:animationGroup forKey:@"TextAdjustment"];
-        
-            // Create a timer to update the layer with the new values once the animation has completed.  I want a pause between the layer disappearing and reappearing in the new position, so I set the timer to fire after the layer completes.
-        _restoreTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
-                                                         target:self
-                                                       selector:@selector(movementComplete:)
-                                                       userInfo:@{kChangeText  : [NSNumber numberWithBool:changeText],
-                                                                  kNewPosition : [NSValue valueWithPoint:newPosition]}
-                                                        repeats:NO];
-        
-            // Hide the layer. When the timer fires I'll undo this and make the layer visible again as well as updating the other properties.
-        _textLayer.opacity = 0.0;
-    }
-}
-
-    /// Triggered by the timer callback. This method moves the text layer into the position to match the end of the animation.
-- (void)movementComplete:(NSTimer *)timer {
-        // Final layer state when animation completes - reset it to the new position with no scaling, fully opaque.  The new position is taken from the userInfo property on the timer.
-    NSDictionary *userInfo = timer.userInfo;
-    CGPoint newPosition = ((NSValue *)userInfo[kNewPosition]).pointValue;
-    BOOL changeText = ((NSNumber *)userInfo[kChangeText]).boolValue;
-    if (_textLayer) {
-            // If we need to change the text, do so while the layer is invisible.
-        if (changeText) {
-            _textLayer.string = [self randomAttributedQuoteString];
-        }
-            // Restore the layer's opacity once it is in the new position.
-        _textLayer.position = newPosition;
-        _textLayer.opacity = 1.0;
-    }
-    NSAssert(timer == _restoreTimer, @"Timer %@ doesn't match the timer we set: %@", timer, _restoreTimer);
-    if (_restoreTimer) {
-        [_restoreTimer invalidate];
-    }
-    _restoreTimer = nil;
-}
 
     /// Produce a random quote, loading the quotes file if necessary.
 - (Quote *)randomQuote {
