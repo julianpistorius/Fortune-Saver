@@ -60,6 +60,9 @@
                                 </connections>
                             </menu>
                         </popUpButtonCell>
+                        <connections>
+                            <action selector="changeStyle:" target="-2" id="KmO-D2-aX6"/>
+                        </connections>
                     </popUpButton>
                     <box verticalHuggingPriority="750" fixedFrame="YES" title="Box" boxType="separator" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Aav-fn-agX">
                         <rect key="frame" x="12" y="222" width="456" height="5"/>
@@ -114,6 +117,16 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="swt-ll-v8r" userLabel="Add Style Button">
+                        <rect key="frame" x="268" y="223" width="36" height="32"/>
+                        <buttonCell key="cell" type="push" title="+" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mqR-OV-I9H">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="addStyle:" target="-2" id="Rb3-In-pkh"/>
+                        </connections>
+                    </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SAT-Mx-dt3">
                         <rect key="frame" x="18" y="125" width="75" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Text Colour" id="ceP-P5-yKI">

@@ -64,7 +64,7 @@
         _layer.position = newPosition;
         _layer.opacity = 1.0;
     }
-    NSAssert(sender == _restoreTimer, @"Timer %@ doesn't match the timer we set: %@", sender, _restoreTimer);
+    if (sender != _restoreTimer) { NSLog(@"Timer %@ doesn't match the timer we set: %@", sender, _restoreTimer); }
     if (_restoreTimer) {
         [_restoreTimer invalidate];
     }

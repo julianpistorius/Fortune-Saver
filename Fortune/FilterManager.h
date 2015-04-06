@@ -7,7 +7,7 @@
 //
 
 @import Cocoa;
-
+#import "UserPreferences.h"
 
 @class FilterManager;
 
@@ -23,7 +23,7 @@
 
 
 
-@interface FilterManager : NSObject
+@interface FilterManager : NSObject <UserPreferencesObserver>
 
     /// Return the instance which is shared between all users.
 + (instancetype) sharedManager;
@@ -39,13 +39,16 @@
     /// The readable name of a filter stored in filterNames. Use to keep track of the selection between objects.
 @property (nonatomic, strong) NSString *selectedFilterName;
 
-    /// The special name of the NONE filter in the first position of the filters menu.
-@property (nonatomic, readonly) NSString *filterNameNone;
-
 #pragma mark - Methods
 
-    /// Given one of the IDs in filterIds, return a Core Image filter it represents.
+    /// Given one of the IDs in filterIds, return a Core Image filter it represents.  Otherwise return nil.
 - (CIFilter *)filterForId: (NSString *)filterId;
+
+    /// Given the name of a filter in filterNames, return the Core Image filter it represents. Otherwise return nil.
+- (CIFilter *)filterForName: (NSString *)filterName;
+
+    /// Refresh the filter data from the preferences, undoing any changes the user may have made.
+- (void)reload;
 
 #pragma mark Observer
 

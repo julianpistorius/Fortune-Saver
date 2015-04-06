@@ -2,8 +2,9 @@
 - [ ] Add parameters to the Quartz file so I can change them in the preferences.
 - [x] Create an animation to move the text across.
 - [x] Add a preferences pane.
-- [ ] Add a list of the Core Image filters that can be applied.
-- [ ] Add a list of Quartz background animations the user can pick from (or which can be selected randomly after a time interval).
+- [x] Add a list of the Core Image filters that can be applied.
+- [x] Add a list of Quartz background animations the user can pick from (or which can be selected randomly after a time interval).
+- [x] The Managers should be observers of the UserPreferences, so they can update their selected states instead of me needing to call [reload] each time.
 
 # Implementation notes
 The User Preferences app dlopen()s the preference application, so if you replace the screensaver binary while the User Preferences is open you will not see the changes until you restart User Preferences.
@@ -15,3 +16,4 @@ The User Preferences and the System count as separate applications, so if you ge
 Screensavers do not use the normal AppIcon image when displayed. Instead provide two PNG files called 'thumbnail.png' and 'thumbnail@2x.png' which will be displayed.
 
 The screensaver API is supposed to seed the random generator via *srandom*() but it isn’t doing so.  I now do this manually using NSDate.intervalSinceReferenceDate * 1000 as the seed.
+

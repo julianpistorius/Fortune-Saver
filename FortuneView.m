@@ -76,8 +76,8 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
             _textFont = _userPreferences.textFont;
             _attributionFont = _userPreferences.attributionFont;
         }
-        NSAssert(_textFont, @"Font %@ not found in the system preferences", _userPreferences.textFontDetails);
-        NSAssert(_attributionFont, @"Font %@ not found in the system preferences", _userPreferences.attributionFontDetails);
+        if (!_textFont) { NSLog(@"Font %@ not found in the system preferences", _userPreferences.textFontDetails); }
+        if (!_attributionFont) { NSLog(@"Font %@ not found in the system preferences", _userPreferences.attributionFontDetails); }
     }
     return self;
 }
@@ -158,7 +158,7 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
 #pragma mark FilterManagerObserver
 
 - (void)filterManagerSelectionChanged:(FilterManager *)manager {
-    [self replaceFilter:[manager filterForId:manager.selectedFilterId]];
+    [self replaceFilter:[manager filterForName:manager.selectedFilterName]];
 }
 
 #pragma mark Private methods.

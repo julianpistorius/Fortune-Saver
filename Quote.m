@@ -31,15 +31,15 @@
         // Otherwise, copy the text, attribution values into an array.
     NSMutableArray *allQuotes = [NSMutableArray array];
     NSXMLElement *root = document.rootElement;
-    NSAssert([root.name isEqualToString:@"Quotes"], @"XML Root node %@ has name %@, should be 'Quotes'", root, root.name);
+    if (![root.name isEqualToString:@"Quotes"]) { NSLog(@"XML Root node %@ has name %@, should be 'Quotes'", root, root.name); }
     NSArray *allQuoteElements = [root elementsForName:@"Quote"];
-    NSAssert(allQuoteElements, @"XML root %@ has no elements named 'Quote'", root);
+    if (!allQuoteElements) { NSLog(@"XML root %@ has no elements named 'Quote'", root); }
     for (NSXMLElement *quoteElement in allQuoteElements) {
         NSString *text = nil, *attribution = nil;
         for (NSXMLNode *node in quoteElement.children) {
-            NSAssert([node.name isEqualToString:@"Text"] || [node.name isEqualToString:@"Attribution"], @"Node %@ is unrecognised.", node);
             if      ([node.name isEqualToString:@"Text"]       ) { text        = node.stringValue; }
             else if ([node.name isEqualToString:@"Attribution"]) { attribution = node.stringValue; }
+            else                                                 { NSLog(@"Node %@ is unrecognised.", node); }
         }
         Quote *quote = [[Quote alloc] initWithText:text attribution:attribution];
         [allQuotes addObject:quote];

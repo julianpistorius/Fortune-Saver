@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "UserPreferences.h"
+
 @class BackgroundManager;
 
     /// Observer
@@ -17,7 +19,7 @@
 
 @end
 
-@interface BackgroundManager : NSObject
+@interface BackgroundManager : NSObject <UserPreferencesObserver>
 
     /// Return the instance which is shared between all users.
 + (instancetype) sharedManager;
@@ -34,6 +36,9 @@
 @property (nonatomic, readonly) NSString *selectedBackgroundPath;
 
 #pragma mark - Methods
+
+    /// Refresh the background data from the preferences and the bundle, undoing any changes the user may have made.
+- (void)reload;
 
     /// Given one of the names in backgroundNames, return the full path to that file.
 - (NSString *)pathForName: (NSString *)backgroundName;

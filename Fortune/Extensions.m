@@ -59,7 +59,7 @@ static NSFont *defaultFont() {
     [self synchronize];
     
         // Check it worked.
-    NSAssert( [self colourForKey:kAttributionColour] != nil, @"User defaults - Stored attribution colour came back as nil.");
+    if( [self colourForKey:kAttributionColour] == nil) { NSLog(@"User defaults - Stored attribution colour came back as nil."); }
 }
 
 

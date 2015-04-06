@@ -7,7 +7,6 @@
 //
 
 #import "BackgroundManager.h"
-#import "UserPreferences.h"
 
 @interface BackgroundManager () {
         // Key = name, value = full path to the file.
@@ -15,7 +14,7 @@
     UserPreferences *_userPreferences;
     NSMutableArray *_observers;
 }
-
+@property (nonatomic, readonly) NSString *backgroundBlack;
 @end
 
 static BackgroundManager *singleton = nil;
@@ -35,37 +34,45 @@ static BackgroundManager *singleton = nil;
     if (!self) { return nil; }
     
     _userPreferences = [UserPreferences sharedPreferences];
-    NSString *defaultBackground = _userPreferences.backgroundName;
+    [_userPreferences addObserver:self];
+    
     _observers = [NSMutableArray array];
     
-        // Load all the backgrounds into the dictionary.
-    _backgroundObjects = [NSMutableDictionary dictionary];
-    NSBundle *ourBundle = [NSBundle bundleForClass:self.class];
-    for (NSString *backgroundAnimation in [ourBundle pathsForResourcesOfType:@"qtz" inDirectory:@"Backgrounds"]) {
-        NSString *title = backgroundAnimation.stringByDeletingPathExtension.lastPathComponent;
-        [_backgroundObjects setValue:backgroundAnimation forKey:title];
-        
-            // If we find the background in the preferences, then set it as selected here.  If it has been removed then leave the selected flag as nil.
-        if ([title isEqualToString:defaultBackground]) {
-            _selectedBackground = defaultBackground;
-        }
-    }
-    if (_backgroundObjects.count == 0) {
-        NSLog(@"Couldn't find any backgrounds in bundle %@", ourBundle);
-    }
-    
-        // register for preference change notifications.
-    NSNotificationCenter *notificationCentre = [NSNotificationCenter defaultCenter];
-    [notificationCentre addObserver:self selector:@selector(preferenceChanged:) name:NSUserDefaultsDidChangeNotification object:nil];
-    
+    [self reload];
+
     return self;
 }
 
 - (void)dealloc {
-    NSNotificationCenter *notificationCentre = [NSNotificationCenter defaultCenter];
-    [notificationCentre removeObserver:self];
+    [_userPreferences removeObserver:self];
 }
 
+- (NSString *)backgroundBlack {
+    return @"Black";
+}
+
+- (void)reload {
+    _backgroundObjects = [self loadBackgrounds];
+        // Update the selected background to match the one loaded from the preferences.
+    NSString *defaultBackground = _userPreferences.backgroundName;
+    if (_backgroundObjects[defaultBackground]) {
+        self.selectedBackground = defaultBackground;
+    }
+}
+
+    /// Load all the backgrounds into the dictionary.
+- (NSDictionary *)loadBackgrounds {
+    NSMutableDictionary *backgroundObjects = [NSMutableDictionary dictionary];
+    NSBundle *ourBundle = [NSBundle bundleForClass:self.class];
+    for (NSString *backgroundAnimation in [ourBundle pathsForResourcesOfType:@"qtz" inDirectory:@"Backgrounds"]) {
+        NSString *title = backgroundAnimation.stringByDeletingPathExtension.lastPathComponent;
+        backgroundObjects[title] = backgroundAnimation;
+    }
+    if (backgroundObjects.count == 0) {
+        NSLog(@"Couldn't find any backgrounds in bundle %@", ourBundle);
+    }
+    return backgroundObjects;
+}
 
     /// Array of strings to use for a list of backgrounds.
 - (NSArray *)backgroundNames {
@@ -106,11 +113,8 @@ static BackgroundManager *singleton = nil;
     [_observers removeObjectIdenticalTo:observer];
 }
 
-- (void)preferenceChanged: (NSNotification *)notification {
-    if (![_userPreferences.backgroundName isEqualToString:self.selectedBackground]) {
-            // Change the background directly. Don't use the property as that updates the preferences and leads to an infinite loop.
-        _selectedBackground = _userPreferences.backgroundName;
-    }
+- (void)userPreferencesChanged: (UserPreferences*)userPreferences {
+    self.selectedBackground = _backgroundObjects[userPreferences.backgroundName] ? userPreferences.backgroundName : self.backgroundBlack;
 }
 
 @end

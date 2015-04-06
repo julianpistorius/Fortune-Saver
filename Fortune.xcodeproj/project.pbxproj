@@ -18,6 +18,9 @@
 		57201A3B1AD101BD0016F6ED /* BackgroundManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 57201A391AD101BD0016F6ED /* BackgroundManager.m */; };
 		57201A3E1AD207310016F6ED /* FilterManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 57201A3C1AD207310016F6ED /* FilterManager.h */; };
 		57201A3F1AD207310016F6ED /* FilterManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 57201A3D1AD207310016F6ED /* FilterManager.m */; };
+		57201A421AD260B60016F6ED /* StyleManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 57201A401AD260B60016F6ED /* StyleManager.h */; };
+		57201A431AD260B60016F6ED /* StyleManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 57201A411AD260B60016F6ED /* StyleManager.m */; };
+		57201A581AD277510016F6ED /* Styles in Resources */ = {isa = PBXBuildFile; fileRef = 57201A571AD277510016F6ED /* Styles */; };
 		57F26EA11AC9D784008A9E77 /* FortuneView.h in Headers */ = {isa = PBXBuildFile; fileRef = 57F26E9A1AC9D784008A9E77 /* FortuneView.h */; };
 		57F26EA21AC9D784008A9E77 /* FortuneView.m in Sources */ = {isa = PBXBuildFile; fileRef = 57F26E9B1AC9D784008A9E77 /* FortuneView.m */; };
 		57F26EA31AC9D784008A9E77 /* NullAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 57F26E9C1AC9D784008A9E77 /* NullAction.h */; };
@@ -56,6 +59,9 @@
 		57201A391AD101BD0016F6ED /* BackgroundManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundManager.m; sourceTree = "<group>"; };
 		57201A3C1AD207310016F6ED /* FilterManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterManager.h; sourceTree = "<group>"; };
 		57201A3D1AD207310016F6ED /* FilterManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterManager.m; sourceTree = "<group>"; };
+		57201A401AD260B60016F6ED /* StyleManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StyleManager.h; sourceTree = "<group>"; };
+		57201A411AD260B60016F6ED /* StyleManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StyleManager.m; sourceTree = "<group>"; };
+		57201A571AD277510016F6ED /* Styles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Styles; sourceTree = SOURCE_ROOT; };
 		57F26E8B1AC9D711008A9E77 /* PWFortune.saver */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PWFortune.saver; sourceTree = BUILT_PRODUCTS_DIR; };
 		57F26E8F1AC9D711008A9E77 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		57F26E9A1AC9D784008A9E77 /* FortuneView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FortuneView.h; sourceTree = SOURCE_ROOT; };
@@ -133,6 +139,8 @@
 				57F26EB71ACCF492008A9E77 /* PreferencesWindowController.m */,
 				57F26EAC1ACCCDBC008A9E77 /* Quote.h */,
 				57F26EAD1ACCCDBC008A9E77 /* Quote.m */,
+				57201A401AD260B60016F6ED /* StyleManager.h */,
+				57201A411AD260B60016F6ED /* StyleManager.m */,
 				57201A311AD0E9F20016F6ED /* Transition.h */,
 				57F26EA81ACCCC48008A9E77 /* UserPreferences.h */,
 				57F26EA91ACCCC48008A9E77 /* UserPreferences.m */,
@@ -145,6 +153,7 @@
 		57F26E8E1AC9D711008A9E77 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				57201A571AD277510016F6ED /* Styles */,
 				57201A361AD100D10016F6ED /* Backgrounds */,
 				57F26E9E1AC9D784008A9E77 /* thumbnail.png */,
 				57F26E9F1AC9D784008A9E77 /* thumbnail@2x.png */,
@@ -170,6 +179,7 @@
 			files = (
 				57201A3A1AD101BD0016F6ED /* BackgroundManager.h in Headers */,
 				57201A341AD0F4890016F6ED /* ExpandAndFade.h in Headers */,
+				57201A421AD260B60016F6ED /* StyleManager.h in Headers */,
 				57201A3E1AD207310016F6ED /* FilterManager.h in Headers */,
 				57F26EAA1ACCCC48008A9E77 /* UserPreferences.h in Headers */,
 				57201A2D1AD0E9C30016F6ED /* MoveAndFade.h in Headers */,
@@ -254,6 +264,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				57201A581AD277510016F6ED /* Styles in Resources */,
 				57F26EA51AC9D784008A9E77 /* thumbnail.png in Resources */,
 				57F26EA61AC9D784008A9E77 /* thumbnail@2x.png in Resources */,
 				57F26EB11ACCE3E7008A9E77 /* PreferencesPanel.xib in Resources */,
@@ -278,6 +289,7 @@
 				57201A3F1AD207310016F6ED /* FilterManager.m in Sources */,
 				57F26EA41AC9D784008A9E77 /* NullAction.m in Sources */,
 				57F26EA21AC9D784008A9E77 /* FortuneView.m in Sources */,
+				57201A431AD260B60016F6ED /* StyleManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

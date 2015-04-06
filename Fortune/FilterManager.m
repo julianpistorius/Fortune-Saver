@@ -8,7 +8,6 @@
 
 @import QuartzCore;
 #import "FilterManager.h"
-#import "UserPreferences.h"
 
 @interface FilterManager () {
         // Key = Filter Name, value = Filter ID
@@ -16,6 +15,8 @@
     UserPreferences *_userPreferences;
     NSMutableArray *_observers;  // id<FilterManagerObserver>
 }
+    /// The special name of the NONE filter in the first position of the filters menu.
+@property (nonatomic, readonly) NSString *filterNameNone;
 
 @end
 
@@ -39,9 +40,20 @@ static FilterManager *singleton = nil;
     if (!self) { return nil; }
     
     _userPreferences = [UserPreferences sharedPreferences];
-    NSString *defaultFilterName = _userPreferences.filterName;
+    [_userPreferences addObserver:self];
     _observers = [NSMutableArray array];
     
+    [self reload];
+
+    return self;
+}
+
+- (void)dealloc {
+    [_userPreferences removeObserver:self];
+}
+
+
+- (void)reload {
         // Load all the filter IDs into the dictionary.
     _filterObjects = [self loadFilterNames];
     if (_filterObjects.count == 0) {
@@ -49,22 +61,11 @@ static FilterManager *singleton = nil;
     }
     
         // If the filter from the Preferences is present, then select it here.
+    NSString *defaultFilterName = _userPreferences.filterName;
     if ([_filterObjects objectForKey:defaultFilterName] != nil) {
-        _selectedFilterName = defaultFilterName;
+        self.selectedFilterName = defaultFilterName;
     }
-    
-        // register for preference change notifications.
-    NSNotificationCenter *notificationCentre = [NSNotificationCenter defaultCenter];
-    [notificationCentre addObserver:self selector:@selector(preferenceChanged:) name:NSUserDefaultsDidChangeNotification object:nil];
-    
-    return self;
 }
-
-- (void)dealloc {
-    NSNotificationCenter *notificationCentre = [NSNotificationCenter defaultCenter];
-    [notificationCentre removeObserver:self];
-}
-
 
 #pragma mark Private methods
 
@@ -111,21 +112,29 @@ static FilterManager *singleton = nil;
 
 #pragma mark Property implementations
 
+    // Returns the selected filter name, or none if it is nil.
+- (NSString *)selectedFilterName {
+    return _selectedFilterName ? _selectedFilterName : self.filterNameNone;
+}
+
     // This updates the global preferences. When you respond to a preferences change don't use this method, assign to _selectedFilter directly.
-- (void)setSelectedFilterName:(NSString *)selectedFilterId {
-    if (![_selectedFilterName isEqualToString:selectedFilterId]) {
-        _selectedFilterName = selectedFilterId;
+- (void)setSelectedFilterName:(NSString *)filterName {
+    if (![_selectedFilterName isEqualToString:filterName]) {
+        _selectedFilterName = filterName;
+
+            // Update the global preferences with the new value.
+        _userPreferences.filterName = filterName;
         
         for (id<FilterManagerObserver> observer in _observers) {
             [observer filterManagerSelectionChanged:self];
         }
-            // Update the global preferences with the new value.
-        _userPreferences.filterName = selectedFilterId;
     }
 }
 
 - (NSString *)selectedFilterId {
-    return _selectedFilterName ? [_filterObjects valueForKey:_selectedFilterName] : nil;
+    if (!_selectedFilterName) { return nil; }
+    if ([_selectedFilterName isEqualToString:self.filterNameNone]) { return nil; }
+    return _filterObjects[_selectedFilterName];
 }
 
 -(NSArray *)filterNames {
@@ -142,6 +151,8 @@ static FilterManager *singleton = nil;
 #pragma mark Public Methods
 
 - (CIFilter *)filterForName:(NSString *)filterName {
+    if ([filterName isEqualToString:self.filterNameNone]) { return nil; }
+    
     NSString *filterId = _filterObjects[filterName];
     return [self filterForId:filterId];
 }
@@ -167,12 +178,14 @@ static FilterManager *singleton = nil;
     [_observers removeObjectIdenticalTo:observer];
 }
 
-- (void)preferenceChanged: (NSNotification *)notification {
-    if (![_userPreferences.filterName isEqualToString:self.selectedFilterName]) {
-            // Change the filter directly. Don't use the property as that updates the preferences and leads to an infinite loop.
-        _selectedFilterName = _userPreferences.filterName;
+- (void)userPreferencesChanged:(UserPreferences *)userPreferences {
+    NSString *filterName = userPreferences.filterName;
+    if (!filterName) {
+        filterName = self.filterNameNone;
     }
+    self.selectedFilterName = _filterObjects[userPreferences.filterName] ? userPreferences.filterName : self.filterNameNone;
 }
+
 
 
 @end

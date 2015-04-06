@@ -15,6 +15,7 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 @interface UserPreferences () {
     NSFont *_textFont, *_attributionFont;
     ScreenSaverDefaults *_screenSaverDefaults;
+    NSMutableArray *_observers;
 }
 
 @end
@@ -28,6 +29,7 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 
 - (void)setBackgroundName:(NSString *)backgroundName {
     [_screenSaverDefaults setObject:backgroundName forKey:kBackgroundName];
+    [self notifyObservers];
 }
 
 - (NSString *)filterName {
@@ -36,28 +38,36 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 
 - (void)setFilterName:(NSString *)filterName {
     [_screenSaverDefaults setObject:filterName forKey:kFilterName];
+    [self notifyObservers];
+}
+
+- (NSString *)styleName {
+    return [_screenSaverDefaults stringForKey:kStyleName];
+}
+
+- (void)setStyleName:(NSString *)styleName {
+    [_screenSaverDefaults setObject:styleName forKey:kStyleName];
+    [self notifyObservers];
 }
 
 #pragma mark Colours
 
 - (NSColor *)textColour {
-    NSColor *colour = [_screenSaverDefaults colourForKey:kTextColour];
-//    return /*[NSColor colorWithWhite:1.0 alpha:0.5];*/ [[NSColor blackColor] colorWithAlphaComponent:0.5];
-    return colour;
+    return [_screenSaverDefaults colourForKey:kTextColour];
 }
 
 - (void)setTextColour:(NSColor *)textColour {
     [_screenSaverDefaults setColour:textColour forKey:kTextColour];
+    [self notifyObservers];
 }
 
 - (NSColor *)attributionColour {
-    NSColor *colour = [_screenSaverDefaults colourForKey:kAttributionColour];
-//    return /*[[NSColor redColor] colorWithAlphaComponent:0.75]*/ [NSColor magentaColor];
-    return colour;
+    return [_screenSaverDefaults colourForKey:kAttributionColour];
 }
 
 - (void)setAttributionColour:(NSColor *)attributionColour {
     [_screenSaverDefaults setColour:attributionColour forKey:kAttributionColour];
+    [self notifyObservers];
 }
 
 #pragma mark Fonts
@@ -73,11 +83,22 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 }
 
 - (void)setTextFont:(NSFont *)textFont {
-    NSAssert(textFont != nil, @"Invalid text font set in preferences.");
+    if(textFont == nil) { NSLog(@"Invalid text font set in preferences."); }
     if (textFont) {
         _textFont = textFont;
         [_screenSaverDefaults setFont:_textFont forKey:kTextFont];
+        [self notifyObservers];
     }
+}
+
+- (NSString *)textFontName {
+    return [_screenSaverDefaults stringForKey:kTextFont];
+}
+
+- (void)setTextFontName:(NSString *)textFontName {
+    [_screenSaverDefaults setObject:textFontName forKey:kTextFont];
+    _textFont = [_screenSaverDefaults fontForKey:kTextFont];
+    [self notifyObservers];
 }
 
 - (NSFont *)attributionFont {
@@ -91,11 +112,22 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 }
 
 - (void)setAttributionFont:(NSFont *)attributionFont {
-    NSAssert(attributionFont != nil, @"Invalid attribution font set in preferences.");
+    if(attributionFont == nil) { NSLog(@"Invalid attribution font set in preferences."); }
     if (attributionFont) {
         _attributionFont = attributionFont;
         [_screenSaverDefaults setFont:_attributionFont forKey:kAttributionFont];
+        [self notifyObservers];
     }
+}
+
+- (NSString *)attributionFontName {
+    return [_screenSaverDefaults stringForKey:kAttributionFont];
+}
+
+- (void)setAttributionFontName:(NSString *)attributionFontName {
+    [_screenSaverDefaults setObject:attributionFontName forKey:kAttributionFont];
+    _attributionFont = [_screenSaverDefaults fontForKey:kAttributionFont];
+    [self notifyObservers];
 }
 
 - (NSString *)textFontDetails {
@@ -122,8 +154,9 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
     self = [super init];
     if (!self) { return nil; }
     
+    _observers = [NSMutableArray array];
     _screenSaverDefaults = [ScreenSaverDefaults defaultsForModuleWithName:self.bundleIdentifier];
-    NSAssert(_screenSaverDefaults, @"Couldn't initialise screensaverDefaults");
+    if (!_screenSaverDefaults) {  NSLog(@"Couldn't initialise screensaverDefaults"); }
     [_screenSaverDefaults registerMyDefaults];
     
         // Find the document URL by default under the user's Documents directory.
@@ -144,10 +177,26 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 }
 
 
+-(void)addObserver:(id<UserPreferencesObserver>)observer {
+    if (![_observers containsObject:observer]) {
+        [_observers addObject:observer];
+    }
+}
+
+- (void)removeObserver:(id<UserPreferencesObserver>)observer {
+    [_observers removeObject:observer];
+}
+
+- (void)notifyObservers {
+    for (id<UserPreferencesObserver> observer in _observers) {
+        [observer userPreferencesChanged:self];
+    }
+}
+
 @end
 
 
     // Keys for the application preferences.
-NSString * const kTextFont = @"TextFont", *const kAttributionFont = @"AttributionFont", *const kTextColour = @"TextColour", *const kAttributionColour = @"AttributionColour", *const kBackgroundName = @"BackgroundName", *const kFilterName = @"FilterName";
+NSString * const kTextFont = @"TextFont", *const kAttributionFont = @"AttributionFont", *const kTextColour = @"TextColour", *const kAttributionColour = @"AttributionColour", *const kBackgroundName = @"BackgroundName", *const kFilterName = @"FilterName", *const kStyleName = @"StyleName";
 
 

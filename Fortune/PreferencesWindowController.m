@@ -8,6 +8,7 @@
 
 #import "PreferencesWindowController.h"
 #import "UserPreferences.h"
+#import "StyleManager.h"
 
 
 typedef NS_ENUM(NSUInteger, FontSelectState) {
@@ -33,12 +34,13 @@ typedef NS_ENUM(NSUInteger, FontSelectState) {
     
     BackgroundManager *_backgroundManager;
     FilterManager *_filterManager;
+    StyleManager *_styleManager;
 }
 @property (nonatomic, readonly) UserPreferences *userPreferences;
 
 - (IBAction)changeTextFont:(NSButton *)sender;
 - (IBAction)changeAttributionFont:(NSButton *)sender;
-
+- (IBAction)changeStyle:(NSPopUpButton *)sender;
 @end
 
 
@@ -74,24 +76,26 @@ static NSWindow * loadNib(id owner) {
     [_backgroundManager addObserver:self];
     _filterManager = [FilterManager sharedManager];
     [_filterManager addObserver:self];
+    _styleManager = [StyleManager sharedManager];
     
-    [self windowDidLoad];
+    NSNotificationCenter *notificationCentre = [NSNotificationCenter defaultCenter];
+    [notificationCentre addObserver:self selector:@selector(windowWillBeginSheet:) name:NSWindowWillBeginSheetNotification object:nil];
+    
     return self;
 }
 
 - (void)dealloc {
     [_backgroundManager removeObserver:self];
     [_filterManager removeObserver:self];
+    NSNotificationCenter *defaultCentre = [NSNotificationCenter defaultCenter];
+    [defaultCentre removeObserver:self];
 }
 
 - (BOOL)acceptsFirstResponder {
     return YES; // We want to receive menu item events.
 }
 
-- (void)windowDidLoad {
-    [super windowDidLoad];
-    
-    // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
+- (void)windowWillBeginSheet: (NSNotification*)notification {
     [self populateBackgroundsButton];
     [self populateStylesButton];
     [self populateFiltersButton];
@@ -102,16 +106,16 @@ static NSWindow * loadNib(id owner) {
 - (void)loadPreferences {
     textColour.color = self.userPreferences.textColour;
     attributionColour.color = self.userPreferences.attributionColour;
-    [self setTextInButton:textFontButton forFont:self.userPreferences.textFont];
-    [self setTextInButton:attributionFontButton forFont:self.userPreferences.attributionFont];
+    _selectedTextFont = self.userPreferences.textFont;
+    [self setTextInButton:textFontButton forFont:_selectedTextFont];
+    _selectedAttributionFont = self.userPreferences.attributionFont;
+    [self setTextInButton:attributionFontButton forFont:_selectedAttributionFont];
     
     [backgroundsButton selectItemWithTitle:_backgroundManager.selectedBackground];
     
     NSString *selectedFilter = _filterManager.selectedFilterName;
-    if (!selectedFilter) {
-        selectedFilter = _filterManager.filterNameNone;
-    }
     [filtersButton selectItemWithTitle:selectedFilter];
+    [stylesButton selectItemWithTitle:_styleManager.selectedStyleName];
 }
 
 
@@ -131,6 +135,10 @@ static NSWindow * loadNib(id owner) {
     }
     if (filtersButton.selectedItem.title) {
         _filterManager.selectedFilterName = filtersButton.selectedItem.title;
+    }
+    
+    if (stylesButton.selectedItem.title) {
+        _styleManager.selectedStyleName = stylesButton.selectedItem.title;
     }
     
     [self.userPreferences synchronise];
@@ -162,6 +170,13 @@ static NSWindow * loadNib(id owner) {
 #pragma mark Interface Builder Actions
 
 - (IBAction) closePreferencesPane: (id)sender {
+        // Hide the font and colour panels if they are currently displayed.
+    if ([NSFontPanel sharedFontPanelExists]) {
+        [[NSFontPanel sharedFontPanel] orderOut:self];
+    }
+    if ([NSColorPanel sharedColorPanelExists]) {
+        [[NSColorPanel sharedColorPanel] orderOut:self];
+    }
     [self savePreferences];
     [[NSApplication sharedApplication] endSheet:self.window];
 }
@@ -184,6 +199,36 @@ static NSWindow * loadNib(id owner) {
     [fontPanel makeKeyAndOrderFront:self];
 }
 
+- (IBAction)changeStyle:(NSPopUpButton *)sender {
+    BOOL customEnabled = [sender.title isEqualToString:_styleManager.customStyleName];
+    backgroundsButton.enabled = filtersButton.enabled = textColour.enabled = attributionColour.enabled = textFontButton.enabled = attributionFontButton.enabled = customEnabled;
+    if (!customEnabled) {
+        [_styleManager applyStyleNamed:sender.title];
+        [self loadPreferences]; // Reinitialize the GUI from the updated preferences.
+    }
+}
+
+
+- (IBAction)addStyle:(NSButton *)sender {
+    NSString *newStyleName = nil;
+    for (NSUInteger i = 1, c = 100; i < c; i++) {
+        NSString *newName = [NSString stringWithFormat:@"User Style %0.2lu", (unsigned long)i];
+        if (![_styleManager styleExists: newStyleName]) {
+            newStyleName = newName;
+            break;
+        }
+    }
+    
+    if (!newStyleName) {
+        NSLog(@"Couldn't allocate a new style. Do we have 99 user styles already?");
+        return;
+    }
+    
+    [self savePreferences];
+    [_styleManager addStyle:newStyleName];
+    _styleManager.selectedStyleName = newStyleName;
+    [self populateStylesButton];
+}
 
 #pragma mark Button menu support
 
@@ -197,9 +242,10 @@ static NSWindow * loadNib(id owner) {
 
 - (void)populateStylesButton {
     [stylesButton removeAllItems];
-    [stylesButton addItemWithTitle:@"Green & Gold"];
-    [stylesButton addItemWithTitle:@"Custom"];
-    [stylesButton selectItemAtIndex:1];
+    [stylesButton addItemsWithTitles:_styleManager.styleNames];
+    if (_styleManager.selectedStyleName) {
+        [stylesButton selectItemWithTitle:_styleManager.selectedStyleName];
+    }
 }
 
 - (void)populateFiltersButton {
@@ -208,12 +254,6 @@ static NSWindow * loadNib(id owner) {
     if (_filterManager.selectedFilterName) {
         [filtersButton selectItemWithTitle:_filterManager.selectedFilterName];
     }
-}
-
-    // TODO: Enable/Disable values based on popup button menu selection.
-- (void)styleChanged: (NSMenuItem *)sender {
-    BOOL customEnabled = [sender.title isEqualToString:@"Custom"];
-    backgroundsButton.enabled = filtersButton.enabled = textColour.enabled = attributionColour.enabled = textFontButton.enabled = attributionFontButton.enabled = customEnabled;
 }
 
 #pragma mark BackgroundManager Observer
