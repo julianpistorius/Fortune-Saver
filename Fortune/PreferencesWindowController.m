@@ -8,7 +8,6 @@
 
 #import "PreferencesWindowController.h"
 #import "UserPreferences.h"
-#import "BackgroundManager.h"
 
 
 typedef NS_ENUM(NSUInteger, FontSelectState) {
@@ -33,6 +32,7 @@ typedef NS_ENUM(NSUInteger, FontSelectState) {
     FontSelectState _fontSelectState;
     
     BackgroundManager *_backgroundManager;
+    FilterManager *_filterManager;
 }
 @property (nonatomic, readonly) UserPreferences *userPreferences;
 
@@ -50,7 +50,7 @@ static NSWindow * loadNib(id owner) {
     NSBundle *saverBundle = [NSBundle bundleForClass:[PreferencesWindowController class]];
     NSNib *prefsNib = [[NSNib alloc] initWithNibNamed:@"PreferencesPanel" bundle:saverBundle];
     [prefsNib instantiateWithOwner:owner topLevelObjects:&nibObjects];
-    NSCAssert(nibObjects && nibObjects.count > 0, @"failed to load nib from main bundle.");
+    if(!(nibObjects && nibObjects.count > 0)) { NSLog(@"failed to load nib from main bundle."); }
 
     NSPanel *prefsPanel = nil;
     for (id nibObject in nibObjects) {
@@ -58,7 +58,7 @@ static NSWindow * loadNib(id owner) {
             prefsPanel = nibObject;
         }
     }
-    NSCAssert(prefsPanel, @"prefsPanel not found in the nib.");
+    if(!prefsPanel) { NSLog(@"prefsPanel not found in the nib."); }
     return prefsPanel;
 }
 
@@ -72,6 +72,8 @@ static NSWindow * loadNib(id owner) {
     _fontSelectState = NOT_SELECTING_FONT;
     _backgroundManager = [BackgroundManager sharedManager];
     [_backgroundManager addObserver:self];
+    _filterManager = [FilterManager sharedManager];
+    [_filterManager addObserver:self];
     
     [self windowDidLoad];
     return self;
@@ -79,6 +81,7 @@ static NSWindow * loadNib(id owner) {
 
 - (void)dealloc {
     [_backgroundManager removeObserver:self];
+    [_filterManager removeObserver:self];
 }
 
 - (BOOL)acceptsFirstResponder {
@@ -103,6 +106,12 @@ static NSWindow * loadNib(id owner) {
     [self setTextInButton:attributionFontButton forFont:self.userPreferences.attributionFont];
     
     [backgroundsButton selectItemWithTitle:_backgroundManager.selectedBackground];
+    
+    NSString *selectedFilter = _filterManager.selectedFilterName;
+    if (!selectedFilter) {
+        selectedFilter = _filterManager.filterNameNone;
+    }
+    [filtersButton selectItemWithTitle:selectedFilter];
 }
 
 
@@ -119,6 +128,9 @@ static NSWindow * loadNib(id owner) {
     
     if (backgroundsButton.selectedItem.title) {
         _backgroundManager.selectedBackground = backgroundsButton.selectedItem.title;
+    }
+    if (filtersButton.selectedItem.title) {
+        _filterManager.selectedFilterName = filtersButton.selectedItem.title;
     }
     
     [self.userPreferences synchronise];
@@ -142,7 +154,7 @@ static NSWindow * loadNib(id owner) {
             [self setTextInButton:attributionFontButton forFont:_selectedAttributionFont];
             break;
         default:
-            NSAssert(NO, @"changeFont: called with invalid state %lu", _fontSelectState);
+            NSLog(@"changeFont: called with invalid state %lu", _fontSelectState);
             break;
     }
 }
@@ -192,8 +204,10 @@ static NSWindow * loadNib(id owner) {
 
 - (void)populateFiltersButton {
     [filtersButton removeAllItems];
-    [filtersButton addItemWithTitle:@"TODO"];
-    [filtersButton selectItemAtIndex:0];
+    [filtersButton addItemsWithTitles:_filterManager.filterNames];
+    if (_filterManager.selectedFilterName) {
+        [filtersButton selectItemWithTitle:_filterManager.selectedFilterName];
+    }
 }
 
     // TODO: Enable/Disable values based on popup button menu selection.
@@ -202,10 +216,17 @@ static NSWindow * loadNib(id owner) {
     backgroundsButton.enabled = filtersButton.enabled = textColour.enabled = attributionColour.enabled = textFontButton.enabled = attributionFontButton.enabled = customEnabled;
 }
 
+#pragma mark BackgroundManager Observer
+
     /// Called when the current selected background changes. Update the button states to match.
 - (void)backgroundManagerSelectionChanged:(BackgroundManager *)manager {
     [backgroundsButton selectItemWithTitle:manager.selectedBackground];
 }
 
+#pragma mark FilterManager Observer
+
+-(void)filterManagerSelectionChanged:(FilterManager *)manager {
+    [filtersButton selectItemWithTitle:manager.selectedFilterName];
+}
 
 @end

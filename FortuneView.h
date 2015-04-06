@@ -8,7 +8,8 @@
 
 #import <ScreenSaver/ScreenSaver.h>
 #import "BackgroundManager.h"
+#import "FilterManager.h"
 
-@interface FortuneView : ScreenSaverView <BackgroundManagerObserver>
+@interface FortuneView : ScreenSaverView <BackgroundManagerObserver, FilterManagerObserver>
 
 @end

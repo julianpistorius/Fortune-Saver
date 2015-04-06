@@ -15,7 +15,6 @@
 #import "PreferencesWindowController.h"
 #import "MoveAndFade.h"
 #import "ExpandAndFade.h"
-#import "BackgroundManager.h"
 
 static const NSUInteger TICK_INTERVAL = 30.0;  // One 'tick' per 30 seconds.
 static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message around a couple of times in case the user didn't get a chance to read it all the first time.
@@ -35,6 +34,7 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
     
     PreferencesWindowController *_prefsController;
     BackgroundManager *_backgroundManager;
+    FilterManager *_filterManager;
 }
 
 
@@ -64,6 +64,8 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
         _textReplaceAnimation = [[ExpandAndFade alloc] init];
         _backgroundManager = [BackgroundManager sharedManager];
         [_backgroundManager addObserver:self];
+        _filterManager = [FilterManager sharedManager];
+        [_filterManager addObserver:self];
         
             // Create the font we'll use for text depending if we're drawing in the preview window or the screen.
         _textFont = _attributionFont = nil;
@@ -82,6 +84,7 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
 
 - (void)dealloc {
     [_backgroundManager removeObserver:self];
+    [_filterManager removeObserver:self];
 }
 
 - (void)startAnimation {
@@ -99,6 +102,8 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
     
     _moveAnimation.layer = _textLayer;
     _textReplaceAnimation.layer = _textLayer;
+    
+    [self replaceFilter:[_filterManager filterForId:_filterManager.selectedFilterId]];
 }
 
 - (void)stopAnimation {
@@ -150,6 +155,12 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
     [self replaceBackgroundLayer:manager.selectedBackgroundPath];
 }
 
+#pragma mark FilterManagerObserver
+
+- (void)filterManagerSelectionChanged:(FilterManager *)manager {
+    [self replaceFilter:[manager filterForId:manager.selectedFilterId]];
+}
+
 #pragma mark Private methods.
 
 - (void)replaceBackgroundLayer: (NSString *)newBackgroundPath {
@@ -157,6 +168,12 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
         [_textLayer removeFromSuperlayer];
         _backgroundLayer = [self createBackgroundLayerAbove:self.layer];
         [_backgroundLayer addSublayer:_textLayer];
+    }
+}
+
+- (void)replaceFilter: (CIFilter *)newFilter {
+    if (_textLayer) {
+        _textLayer.compositingFilter = newFilter;
     }
 }
 
@@ -202,13 +219,6 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
     tl.backgroundColor = [NSColor colorWithWhite:1.0 alpha:0.0].CGColor; // transparent background.
     tl.anchorPoint = CGPointMake(0, 0);
     
-        // Add a Core Image filter to merge the text with the background.
-    CIFilter *overlayFilter = [CIFilter filterWithName:@"CIDivideBlendMode"];
-    if (overlayFilter) {
-        tl.compositingFilter = overlayFilter;
-    } else {
-        NSLog(@"Couldn't create overlay filter.");
-    }
         // Add do-nothing actions for the properties we will animate so that the layer doesn't auto-animate the changes.
     tl.actions = @{@"position" : [[NullAction alloc] init], @"opacity" : [[NullAction alloc] init], @"translation" : [[NullAction alloc] init]};
     

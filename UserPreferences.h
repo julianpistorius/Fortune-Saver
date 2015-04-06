@@ -24,6 +24,9 @@
     /// The name of the selected background animation.
 @property (nonatomic, strong) NSString *backgroundName;
 
+    /// The name of the selected Core Image filter.
+@property (nonatomic, strong) NSString *filterName;
+
     /// Fonts specified
 @property (nonatomic, strong) NSFont *textFont, *attributionFont;
 
@@ -37,4 +40,4 @@
 @end
 
     // Keys for the application preferences.
-extern NSString * const kTextFont, *const kAttributionFont, *const kTextColour, *const kAttributionColour, *const kBackgroundName;
+extern NSString * const kTextFont, *const kAttributionFont, *const kTextColour, *const kAttributionColour, *const kBackgroundName, *const kFilterName;

@@ -8,10 +8,11 @@
 
 @import Cocoa;
 #import "BackgroundManager.h"
+#import "FilterManager.h"
 
 @class UserPreferences;
 
-@interface PreferencesWindowController : NSWindowController <NSMenuDelegate, BackgroundManagerObserver>
+@interface PreferencesWindowController : NSWindowController <NSMenuDelegate, BackgroundManagerObserver, FilterManagerObserver>
 
 - (instancetype)init; //NS_DESIGNATED_INITIALIZER;
 

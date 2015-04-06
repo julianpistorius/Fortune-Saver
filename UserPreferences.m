@@ -30,6 +30,14 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
     [_screenSaverDefaults setObject:backgroundName forKey:kBackgroundName];
 }
 
+- (NSString *)filterName {
+    return [_screenSaverDefaults stringForKey:kFilterName];
+}
+
+- (void)setFilterName:(NSString *)filterName {
+    [_screenSaverDefaults setObject:filterName forKey:kFilterName];
+}
+
 #pragma mark Colours
 
 - (NSColor *)textColour {
@@ -140,6 +148,6 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 
 
     // Keys for the application preferences.
-NSString * const kTextFont = @"TextFont", *const kAttributionFont = @"AttributionFont", *const kTextColour = @"TextColour", *const kAttributionColour = @"AttributionColour", *const kBackgroundName = @"BackgroundName";
+NSString * const kTextFont = @"TextFont", *const kAttributionFont = @"AttributionFont", *const kTextColour = @"TextColour", *const kAttributionColour = @"AttributionColour", *const kBackgroundName = @"BackgroundName", *const kFilterName = @"FilterName";
 
 
