@@ -19,14 +19,15 @@
 
 + (instancetype) sharedPreferences;
 
-#pragma mark -
+#pragma mark - Properties pulled from the preferences.
 
-    /// Hard-coded bundle identifier. This is used so we get access to the preferences no matter which app launches us.
-@property (nonatomic, readonly) NSString *bundleIdentifier;
-
-#pragma mark Properties pulled from the preferences.
 @property (nonatomic, strong) NSColor *textColour, *attributionColour;
-@property (nonatomic, readonly) NSURL *documentFileURL;
+
+    /// The user-specified URL for the quotes XML file, or nil if none have been specified.
+@property (nonatomic, copy) NSURL *quotesFileURL;
+
+    /// The hard-coded URL for the quotes XML file included in the bundle in case the user hasn't set quotesFileURL manually.
+@property (nonatomic, readonly) NSURL *fallbackQuotesFileURL;
 
     /// The name of the selected background animation.
 @property (nonatomic, strong) NSString *backgroundName;
@@ -55,4 +56,4 @@
 @end
 
     // Keys for the application preferences.
-extern NSString * const kTextFont, *const kAttributionFont, *const kTextColour, *const kAttributionColour, *const kBackgroundName, *const kFilterName, *const kStyleName;
+extern NSString * const kTextFont, *const kAttributionFont, *const kTextColour, *const kAttributionColour, *const kBackgroundName, *const kFilterName, *const kStyleName, *const kQuotesURL;

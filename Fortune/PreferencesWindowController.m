@@ -28,6 +28,7 @@ typedef NS_ENUM(NSUInteger, FontSelectState) {
     __weak IBOutlet NSButton *attributionFontButton;
     __weak IBOutlet NSPopUpButton *backgroundsButton;
     __weak IBOutlet NSPopUpButton *filtersButton;
+    __weak IBOutlet NSPathControl *documentURLButton;
     
     NSFont *_selectedTextFont, *_selectedAttributionFont;
     FontSelectState _fontSelectState;
@@ -119,6 +120,8 @@ static NSWindow * loadNib(id owner) {
     NSString *selectedFilter = _filterManager.selectedFilterName;
     [filtersButton selectItemWithTitle:selectedFilter];
     [stylesButton selectItemWithTitle:_styleManager.selectedStyleName];
+    
+    documentURLButton.URL = self.userPreferences.quotesFileURL;
 }
 
 
@@ -143,6 +146,8 @@ static NSWindow * loadNib(id owner) {
     if (stylesButton.selectedItem.title) {
         _styleManager.selectedStyleName = stylesButton.selectedItem.title;
     }
+    
+    self.userPreferences.quotesFileURL = documentURLButton.URL;
     
     [self.userPreferences synchronise];
 }

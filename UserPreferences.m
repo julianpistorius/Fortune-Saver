@@ -17,11 +17,12 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
     ScreenSaverDefaults *_screenSaverDefaults;
     NSMutableArray *_observers;
 }
+    /// Hard-coded bundle identifier. This is used so we get access to the preferences no matter which app launches us.
+@property (nonatomic, readonly) NSString *bundleIdentifier;
 
 @end
 
 @implementation UserPreferences
-@synthesize documentFileURL = _documentFileURL;
 
 - (NSString *)backgroundName {
     return [_screenSaverDefaults stringForKey:kBackgroundName];
@@ -48,6 +49,26 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 - (void)setStyleName:(NSString *)styleName {
     [_screenSaverDefaults setObject:styleName forKey:kStyleName];
     [self notifyObservers];
+}
+
+- (NSURL *)quotesFileURL {
+        // If we have a URL in the preferences, return that URL.  Otherwise return a URL to the default script in the bundle.
+    NSURL *urlFromPrefs = [_screenSaverDefaults URLForKey:kQuotesURL];
+    return urlFromPrefs;
+}
+
+- (void)setQuotesFileURL:(NSURL *)documentFileURL {
+    [_screenSaverDefaults setURL:documentFileURL forKey:kQuotesURL];
+    [self notifyObservers];
+}
+
+- (NSURL *)fallbackQuotesFileURL {
+    NSBundle *ourBundle = [NSBundle bundleForClass:self.class];
+    NSURL *url = [ourBundle URLForResource:@"Default Quotes" withExtension:@"xml"];
+    if (!url) {
+        NSLog(@"Default quotes URL not found in Screensaver bundle %@", ourBundle);
+    }
+    return url;
 }
 
 #pragma mark Colours
@@ -159,10 +180,6 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
     if (!_screenSaverDefaults) {  NSLog(@"Couldn't initialise screensaverDefaults"); }
     [_screenSaverDefaults registerMyDefaults];
     
-        // Find the document URL by default under the user's Documents directory.
-    NSArray *urls = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
-    NSURL *documentsDirectoryURL = urls[0];
-    _documentFileURL = [NSURL URLWithString:@"net-sigs.xml" relativeToURL:documentsDirectoryURL];
     return self;
 }
 
@@ -171,11 +188,7 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
     [_screenSaverDefaults synchronize];
 }
 
-
-- (NSString *)bundleIdentifier {
-    return @"Patrick-Wallace.PWFortune";
-}
-
+#pragma mark Observers
 
 -(void)addObserver:(id<UserPreferencesObserver>)observer {
     if (![_observers containsObject:observer]) {
@@ -193,10 +206,17 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
     }
 }
 
+
+#pragma mark Private methods
+
+- (NSString *)bundleIdentifier {
+    return @"Patrick-Wallace.PWFortune";
+}
+
 @end
 
 
     // Keys for the application preferences.
-NSString * const kTextFont = @"TextFont", *const kAttributionFont = @"AttributionFont", *const kTextColour = @"TextColour", *const kAttributionColour = @"AttributionColour", *const kBackgroundName = @"BackgroundName", *const kFilterName = @"FilterName", *const kStyleName = @"StyleName";
+NSString * const kTextFont = @"TextFont", *const kAttributionFont = @"AttributionFont", *const kTextColour = @"TextColour", *const kAttributionColour = @"AttributionColour", *const kBackgroundName = @"BackgroundName", *const kFilterName = @"FilterName", *const kStyleName = @"StyleName", *const kQuotesURL = @"QuotesURL";
 
 

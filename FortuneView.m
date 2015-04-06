@@ -268,7 +268,11 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
     /// Produce a random quote, loading the quotes file if necessary.
 - (Quote *)randomQuote {
     if (!_allQuotes) {
-        _allQuotes = [Quote loadQuotes:_userPreferences.documentFileURL];
+        NSURL *quotesURL = _userPreferences.quotesFileURL;
+        if (!quotesURL) {
+            quotesURL = _userPreferences.fallbackQuotesFileURL;
+        }
+        _allQuotes = [Quote loadQuotes:quotesURL];
     }
     if (_allQuotes.count > 0) {
         NSUInteger randomValue = SSRandomIntBetween(0, (int)_allQuotes.count - 1);
