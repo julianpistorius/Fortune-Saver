@@ -100,6 +100,9 @@ static NSWindow * loadNib(id owner) {
     [self populateStylesButton];
     [self populateFiltersButton];
     
+        // Tell the global colour preferences window we want to include alpha-blending.
+    [NSColorPanel sharedColorPanel].showsAlpha = YES;
+    
     [self loadPreferences];
 }
 
