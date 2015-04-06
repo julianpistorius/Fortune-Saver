@@ -8,22 +8,31 @@
 
 #import "PreferencesWindowController.h"
 #import "UserPreferences.h"
+#import "BackgroundManager.h"
 
 
-NS_ENUM(NSUInteger, FontSelectState) {
+typedef NS_ENUM(NSUInteger, FontSelectState) {
     NOT_SELECTING_FONT,
     SELECTING_TEXT_FONT,
     SELECTING_ATTRIBUTION_FONT
 };
 
 @interface PreferencesWindowController () {
+        // Styles button. Allows the user to select pre-defined styles.
+    __weak IBOutlet NSPopUpButton *stylesButton;
+    
+        // If the style is Custom, these buttons allow the user to select specific items.
     __weak IBOutlet NSColorWell *textColour;
     __weak IBOutlet NSColorWell *attributionColour;
     __weak IBOutlet NSButton *textFontButton;
     __weak IBOutlet NSButton *attributionFontButton;
+    __weak IBOutlet NSPopUpButton *backgroundsButton;
+    __weak IBOutlet NSPopUpButton *filtersButton;
     
     NSFont *_selectedTextFont, *_selectedAttributionFont;
-    enum FontSelectState _fontSelectState;
+    FontSelectState _fontSelectState;
+    
+    BackgroundManager *_backgroundManager;
 }
 @property (nonatomic, readonly) UserPreferences *userPreferences;
 
@@ -53,29 +62,38 @@ static NSWindow * loadNib(id owner) {
     return prefsPanel;
 }
 
--(instancetype)initWithUserPreferences:(UserPreferences *)prefs {
+-(instancetype)init {
     NSWindow *loadedNib = loadNib(self);
     self = [super initWithWindow:loadedNib];
     if (!self) {
         return nil;
     }
-//    self = [super initWithWindowNibName:@"PreferencesPanel"];
-//    if (!self) return nil;
-    _userPreferences = prefs;
+    _userPreferences = [UserPreferences sharedPreferences];
     _fontSelectState = NOT_SELECTING_FONT;
-    _selectedAttributionFont = _selectedTextFont = nil;
+    _backgroundManager = [BackgroundManager sharedManager];
+    [_backgroundManager addObserver:self];
     
     [self windowDidLoad];
     return self;
 }
 
+- (void)dealloc {
+    [_backgroundManager removeObserver:self];
+}
+
+- (BOOL)acceptsFirstResponder {
+    return YES; // We want to receive menu item events.
+}
 
 - (void)windowDidLoad {
     [super windowDidLoad];
     
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
-    [self loadPreferences];
+    [self populateBackgroundsButton];
+    [self populateStylesButton];
+    [self populateFiltersButton];
     
+    [self loadPreferences];
 }
 
 - (void)loadPreferences {
@@ -83,8 +101,9 @@ static NSWindow * loadNib(id owner) {
     attributionColour.color = self.userPreferences.attributionColour;
     [self setTextInButton:textFontButton forFont:self.userPreferences.textFont];
     [self setTextInButton:attributionFontButton forFont:self.userPreferences.attributionFont];
+    
+    [backgroundsButton selectItemWithTitle:_backgroundManager.selectedBackground];
 }
-
 
 
 - (void)savePreferences {
@@ -97,8 +116,15 @@ static NSWindow * loadNib(id owner) {
     if (_selectedAttributionFont) {
         self.userPreferences.attributionFont = _selectedAttributionFont;
     }
+    
+    if (backgroundsButton.selectedItem.title) {
+        _backgroundManager.selectedBackground = backgroundsButton.selectedItem.title;
+    }
+    
     [self.userPreferences synchronise];
 }
+
+#pragma mark Font Management
 
 - (void)setTextInButton: (NSButton*)button forFont: (NSFont *)font {
     NSString *title = [NSString stringWithFormat:@"%@ %lu pt", font.fontName, (NSUInteger)font.pointSize];
@@ -121,7 +147,7 @@ static NSWindow * loadNib(id owner) {
     }
 }
 
-#pragma mark - Interface Builder Actions
+#pragma mark Interface Builder Actions
 
 - (IBAction) closePreferencesPane: (id)sender {
     [self savePreferences];
@@ -144,6 +170,41 @@ static NSWindow * loadNib(id owner) {
     _selectedAttributionFont = self.userPreferences.attributionFont;
     NSFontPanel *fontPanel = [fontManager fontPanel:YES];
     [fontPanel makeKeyAndOrderFront:self];
+}
+
+
+#pragma mark Button menu support
+
+- (void)populateBackgroundsButton {
+    [backgroundsButton removeAllItems];
+    [backgroundsButton addItemsWithTitles:_backgroundManager.backgroundNames];
+    if (_backgroundManager.selectedBackground) {
+        [backgroundsButton selectItemWithTitle:_backgroundManager.selectedBackground];
+    }
+}
+
+- (void)populateStylesButton {
+    [stylesButton removeAllItems];
+    [stylesButton addItemWithTitle:@"Green & Gold"];
+    [stylesButton addItemWithTitle:@"Custom"];
+    [stylesButton selectItemAtIndex:1];
+}
+
+- (void)populateFiltersButton {
+    [filtersButton removeAllItems];
+    [filtersButton addItemWithTitle:@"TODO"];
+    [filtersButton selectItemAtIndex:0];
+}
+
+    // TODO: Enable/Disable values based on popup button menu selection.
+- (void)styleChanged: (NSMenuItem *)sender {
+    BOOL customEnabled = [sender.title isEqualToString:@"Custom"];
+    backgroundsButton.enabled = filtersButton.enabled = textColour.enabled = attributionColour.enabled = textFontButton.enabled = attributionFontButton.enabled = customEnabled;
+}
+
+    /// Called when the current selected background changes. Update the button states to match.
+- (void)backgroundManagerSelectionChanged:(BackgroundManager *)manager {
+    [backgroundsButton selectItemWithTitle:manager.selectedBackground];
 }
 
 

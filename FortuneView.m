@@ -15,6 +15,7 @@
 #import "PreferencesWindowController.h"
 #import "MoveAndFade.h"
 #import "ExpandAndFade.h"
+#import "BackgroundManager.h"
 
 static const NSUInteger TICK_INTERVAL = 30.0;  // One 'tick' per 30 seconds.
 static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message around a couple of times in case the user didn't get a chance to read it all the first time.
@@ -33,6 +34,7 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
     id<Transition> _textReplaceAnimation;
     
     PreferencesWindowController *_prefsController;
+    BackgroundManager *_backgroundManager;
 }
 
 
@@ -56,10 +58,12 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
         [self seedRandomNumberGenerator];
         
         _ticksToChangeQuote = TICKS_BEFORE_CHANGING_QUOTE;
-        _userPreferences = [[UserPreferences alloc] init];
+        _userPreferences = [UserPreferences sharedPreferences];
         _firstAnimation = YES;
         _moveAnimation = [[MoveAndFade alloc] init];
         _textReplaceAnimation = [[ExpandAndFade alloc] init];
+        _backgroundManager = [BackgroundManager sharedManager];
+        [_backgroundManager addObserver:self];
         
             // Create the font we'll use for text depending if we're drawing in the preview window or the screen.
         _textFont = _attributionFont = nil;
@@ -74,6 +78,10 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
         NSAssert(_attributionFont, @"Font %@ not found in the system preferences", _userPreferences.attributionFontDetails);
     }
     return self;
+}
+
+- (void)dealloc {
+    [_backgroundManager removeObserver:self];
 }
 
 - (void)startAnimation {
@@ -123,11 +131,11 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
     NSWindow *prefsWindow = nil;
 
     if (!_prefsController) {
-        _prefsController = [[PreferencesWindowController alloc] initWithUserPreferences:_userPreferences];
+        _prefsController = [[PreferencesWindowController alloc] init];
     }
-    NSAssert(_prefsController, @"PreferencesPanel failed to load.");
+    if (!_prefsController) { NSLog(@"PreferencesWindowController failed to load."); }
     prefsWindow = _prefsController.window;
-    NSAssert(prefsWindow, @"PreferencesPanel controller %@ failed to create window.", _prefsController);
+    if (!prefsWindow) {  NSLog(@"PreferencesWindowController %@ failed to create window.", _prefsController); }
     return prefsWindow;
 }
 
@@ -136,24 +144,43 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
 }
 
 
+#pragma mark BackgroundManagerObserver
+
+-(void)backgroundManagerSelectionChanged:(BackgroundManager *)manager {
+    [self replaceBackgroundLayer:manager.selectedBackgroundPath];
+}
+
 #pragma mark Private methods.
+
+- (void)replaceBackgroundLayer: (NSString *)newBackgroundPath {
+    if (_textLayer) {
+        [_textLayer removeFromSuperlayer];
+        _backgroundLayer = [self createBackgroundLayerAbove:self.layer];
+        [_backgroundLayer addSublayer:_textLayer];
+    }
+}
 
 - (void)seedRandomNumberGenerator {
     NSTimeInterval timeInterval = [NSDate date].timeIntervalSinceReferenceDate;
     unsigned int seedValue = timeInterval * 1000;
-    NSLog(@"Fortune: Seeded random number generator with %u", seedValue);
     srandom(seedValue);
 }
 
     /// Create a Quartz layer which shows an animated background.
 - (CALayer *) createBackgroundLayerAbove: (CALayer*)parentLayer {
     
-    NSBundle *saverBundle = [NSBundle bundleWithIdentifier:_userPreferences.bundleIdentifier];
-    NSAssert(saverBundle, @"Bundle not found for identifier %@", _userPreferences.bundleIdentifier);
-    NSString *compositionFile = [saverBundle pathForResource:@"Background" ofType:@"qtz"];
-    NSAssert(compositionFile, @"Bundle %@ has no Background.qtz object.", saverBundle);
-    CALayer *backgroundLayer = [QCCompositionLayer compositionLayerWithFile:compositionFile];
-    NSAssert(backgroundLayer, @"QCCompositionLayer failed to load composition file %@", compositionFile);
+    CALayer *backgroundLayer = nil;
+    
+    NSString *selectedBackgroundPath = _backgroundManager.selectedBackgroundPath;
+    if (selectedBackgroundPath != nil) {
+        backgroundLayer = [QCCompositionLayer compositionLayerWithFile:selectedBackgroundPath];
+    }
+    
+    if (!backgroundLayer) {
+        NSLog(@"Background layer not found or failed to load. Path = [%@]. Using default layer.", _backgroundManager.selectedBackgroundPath);
+        backgroundLayer = [CALayer layer];
+    }
+
     backgroundLayer.anchorPoint = CGPointMake(0, 0);
     backgroundLayer.bounds = self.bounds;
     backgroundLayer.position = CGPointMake(0, 0); // Relative to anchor point at bottom-left of layer.
@@ -235,7 +262,6 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
     }
     if (_allQuotes.count > 0) {
         NSUInteger randomValue = SSRandomIntBetween(0, (int)_allQuotes.count - 1);
-        NSLog(@"Selected the %lu th quote from the list.",  (unsigned long)randomValue);
         return _allQuotes[randomValue];
     }
         // Return a quote with explanatory text so the user can tell what went wrong.

@@ -7,10 +7,12 @@
 //
 
 @import Cocoa;
+#import "BackgroundManager.h"
+
 @class UserPreferences;
 
-@interface PreferencesWindowController : NSWindowController
+@interface PreferencesWindowController : NSWindowController <NSMenuDelegate, BackgroundManagerObserver>
 
-- (instancetype)initWithUserPreferences: (UserPreferences *)userPreferences NS_DESIGNATED_INITIALIZER;
+- (instancetype)init; //NS_DESIGNATED_INITIALIZER;
 
 @end

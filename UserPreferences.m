@@ -10,6 +10,8 @@
 #import "Extensions.h"
 @import ScreenSaver;
 
+static const NSUInteger DEFAULT_FONT_SIZE = 0;
+
 @interface UserPreferences () {
     NSFont *_textFont, *_attributionFont;
     ScreenSaverDefaults *_screenSaverDefaults;
@@ -19,6 +21,16 @@
 
 @implementation UserPreferences
 @synthesize documentFileURL = _documentFileURL;
+
+- (NSString *)backgroundName {
+    return [_screenSaverDefaults stringForKey:kBackgroundName];
+}
+
+- (void)setBackgroundName:(NSString *)backgroundName {
+    [_screenSaverDefaults setObject:backgroundName forKey:kBackgroundName];
+}
+
+#pragma mark Colours
 
 - (NSColor *)textColour {
     NSColor *colour = [_screenSaverDefaults colourForKey:kTextColour];
@@ -40,39 +52,20 @@
     [_screenSaverDefaults setColour:attributionColour forKey:kAttributionColour];
 }
 
--(instancetype)init {
-    self = [super init];
-    if (!self) { return nil; }
-    
-    _screenSaverDefaults = [ScreenSaverDefaults defaultsForModuleWithName:self.bundleIdentifier];
-    NSAssert(_screenSaverDefaults, @"Couldn't initialise screensaverDefaults");
-    [_screenSaverDefaults registerMyDefaults];
-    
-        // Find the document URL by default under the user's Documents directory.
-    NSArray *urls = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
-    NSURL *documentsDirectoryURL = urls[0];
-    _documentFileURL = [NSURL URLWithString:@"net-sigs.xml" relativeToURL:documentsDirectoryURL];
-    return self;
-}
-
-- (NSString *)bundleIdentifier {
-//    NSBundle *thisBundle = [NSBundle bundleForClass:self.class];
-//    return thisBundle.bundleIdentifier;
-    return @"Patrick-Wallace.PWFortune";
-}
+#pragma mark Fonts
 
 - (NSFont *)textFont {
     if (!_textFont) {
         _textFont = [_screenSaverDefaults fontForKey:kTextFont];
     }
     if (!_textFont) {
-        _textFont = [NSFont systemFontOfSize:0];
+        _textFont = [NSFont systemFontOfSize:DEFAULT_FONT_SIZE];  // If the specified font isn't found, use one guaranteed to be there.
     }
     return _textFont;
 }
 
 - (void)setTextFont:(NSFont *)textFont {
-    NSAssert(textFont != nil, @"Invalid attribution font set in preferences.");
+    NSAssert(textFont != nil, @"Invalid text font set in preferences.");
     if (textFont) {
         _textFont = textFont;
         [_screenSaverDefaults setFont:_textFont forKey:kTextFont];
@@ -84,7 +77,7 @@
         _attributionFont = [_screenSaverDefaults fontForKey:kAttributionFont];
     }
     if (!_attributionFont) {
-        _attributionFont = [NSFont systemFontOfSize:0];
+        _attributionFont = [NSFont systemFontOfSize:DEFAULT_FONT_SIZE];  // If the specified font isn't found, use one guaranteed to be there.
     }
     return _attributionFont;
 }
@@ -105,14 +98,48 @@
     return self.attributionFont.description;
 }
 
+
+
+#pragma mark Methods
+
++ (instancetype)sharedPreferences {
+    static UserPreferences *singleton = nil;
+    if (!singleton) {
+        singleton = [[UserPreferences alloc] init];
+    }
+    return singleton;
+}
+
+-(instancetype)init {
+    self = [super init];
+    if (!self) { return nil; }
+    
+    _screenSaverDefaults = [ScreenSaverDefaults defaultsForModuleWithName:self.bundleIdentifier];
+    NSAssert(_screenSaverDefaults, @"Couldn't initialise screensaverDefaults");
+    [_screenSaverDefaults registerMyDefaults];
+    
+        // Find the document URL by default under the user's Documents directory.
+    NSArray *urls = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
+    NSURL *documentsDirectoryURL = urls[0];
+    _documentFileURL = [NSURL URLWithString:@"net-sigs.xml" relativeToURL:documentsDirectoryURL];
+    return self;
+}
+
+
 -(void)synchronise {
     [_screenSaverDefaults synchronize];
 }
+
+
+- (NSString *)bundleIdentifier {
+    return @"Patrick-Wallace.PWFortune";
+}
+
 
 @end
 
 
     // Keys for the application preferences.
-NSString * const kTextFont = @"TextFont", *const kAttributionFont = @"AttributionFont", *const kTextColour = @"TextColour", *const kAttributionColour = @"AttributionColour";
+NSString * const kTextFont = @"TextFont", *const kAttributionFont = @"AttributionFont", *const kTextColour = @"TextColour", *const kAttributionColour = @"AttributionColour", *const kBackgroundName = @"BackgroundName";
 
 

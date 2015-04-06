@@ -13,7 +13,9 @@
 		57201A2E1AD0E9C30016F6ED /* MoveAndFade.m in Sources */ = {isa = PBXBuildFile; fileRef = 57201A2C1AD0E9C30016F6ED /* MoveAndFade.m */; };
 		57201A341AD0F4890016F6ED /* ExpandAndFade.h in Headers */ = {isa = PBXBuildFile; fileRef = 57201A321AD0F4890016F6ED /* ExpandAndFade.h */; };
 		57201A351AD0F4890016F6ED /* ExpandAndFade.m in Sources */ = {isa = PBXBuildFile; fileRef = 57201A331AD0F4890016F6ED /* ExpandAndFade.m */; };
-		57F26EA01AC9D784008A9E77 /* Background.qtz in Resources */ = {isa = PBXBuildFile; fileRef = 57F26E991AC9D784008A9E77 /* Background.qtz */; };
+		57201A371AD100D10016F6ED /* Backgrounds in Resources */ = {isa = PBXBuildFile; fileRef = 57201A361AD100D10016F6ED /* Backgrounds */; };
+		57201A3A1AD101BD0016F6ED /* BackgroundManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 57201A381AD101BD0016F6ED /* BackgroundManager.h */; };
+		57201A3B1AD101BD0016F6ED /* BackgroundManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 57201A391AD101BD0016F6ED /* BackgroundManager.m */; };
 		57F26EA11AC9D784008A9E77 /* FortuneView.h in Headers */ = {isa = PBXBuildFile; fileRef = 57F26E9A1AC9D784008A9E77 /* FortuneView.h */; };
 		57F26EA21AC9D784008A9E77 /* FortuneView.m in Sources */ = {isa = PBXBuildFile; fileRef = 57F26E9B1AC9D784008A9E77 /* FortuneView.m */; };
 		57F26EA31AC9D784008A9E77 /* NullAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 57F26E9C1AC9D784008A9E77 /* NullAction.h */; };
@@ -47,9 +49,11 @@
 		57201A311AD0E9F20016F6ED /* Transition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Transition.h; sourceTree = "<group>"; };
 		57201A321AD0F4890016F6ED /* ExpandAndFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExpandAndFade.h; sourceTree = "<group>"; };
 		57201A331AD0F4890016F6ED /* ExpandAndFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExpandAndFade.m; sourceTree = "<group>"; };
+		57201A361AD100D10016F6ED /* Backgrounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Backgrounds; sourceTree = SOURCE_ROOT; };
+		57201A381AD101BD0016F6ED /* BackgroundManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackgroundManager.h; sourceTree = "<group>"; };
+		57201A391AD101BD0016F6ED /* BackgroundManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundManager.m; sourceTree = "<group>"; };
 		57F26E8B1AC9D711008A9E77 /* PWFortune.saver */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PWFortune.saver; sourceTree = BUILT_PRODUCTS_DIR; };
 		57F26E8F1AC9D711008A9E77 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		57F26E991AC9D784008A9E77 /* Background.qtz */ = {isa = PBXFileReference; lastKnownFileType = "video.quartz-composer"; name = Background.qtz; path = ../Background.qtz; sourceTree = "<group>"; };
 		57F26E9A1AC9D784008A9E77 /* FortuneView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FortuneView.h; sourceTree = SOURCE_ROOT; };
 		57F26E9B1AC9D784008A9E77 /* FortuneView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FortuneView.m; sourceTree = SOURCE_ROOT; };
 		57F26E9C1AC9D784008A9E77 /* NullAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NullAction.h; path = ../NullAction.h; sourceTree = "<group>"; };
@@ -111,6 +115,8 @@
 		57F26E8D1AC9D711008A9E77 /* Fortune */ = {
 			isa = PBXGroup;
 			children = (
+				57201A381AD101BD0016F6ED /* BackgroundManager.h */,
+				57201A391AD101BD0016F6ED /* BackgroundManager.m */,
 				57201A0D1ACD0DC40016F6ED /* Extensions.h */,
 				57201A0E1ACD0DC40016F6ED /* Extensions.m */,
 				57F26E9A1AC9D784008A9E77 /* FortuneView.h */,
@@ -133,7 +139,7 @@
 		57F26E8E1AC9D711008A9E77 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				57F26E991AC9D784008A9E77 /* Background.qtz */,
+				57201A361AD100D10016F6ED /* Backgrounds */,
 				57F26E9E1AC9D784008A9E77 /* thumbnail.png */,
 				57F26E9F1AC9D784008A9E77 /* thumbnail@2x.png */,
 				57F26E8F1AC9D711008A9E77 /* Info.plist */,
@@ -156,6 +162,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				57201A3A1AD101BD0016F6ED /* BackgroundManager.h in Headers */,
 				57201A341AD0F4890016F6ED /* ExpandAndFade.h in Headers */,
 				57F26EAA1ACCCC48008A9E77 /* UserPreferences.h in Headers */,
 				57201A2D1AD0E9C30016F6ED /* MoveAndFade.h in Headers */,
@@ -242,8 +249,8 @@
 			files = (
 				57F26EA51AC9D784008A9E77 /* thumbnail.png in Resources */,
 				57F26EA61AC9D784008A9E77 /* thumbnail@2x.png in Resources */,
-				57F26EA01AC9D784008A9E77 /* Background.qtz in Resources */,
 				57F26EB11ACCE3E7008A9E77 /* PreferencesPanel.xib in Resources */,
+				57201A371AD100D10016F6ED /* Backgrounds in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -260,6 +267,7 @@
 				57F26EB91ACCF492008A9E77 /* PreferencesWindowController.m in Sources */,
 				57201A101ACD0DC40016F6ED /* Extensions.m in Sources */,
 				57201A351AD0F4890016F6ED /* ExpandAndFade.m in Sources */,
+				57201A3B1AD101BD0016F6ED /* BackgroundManager.m in Sources */,
 				57F26EA41AC9D784008A9E77 /* NullAction.m in Sources */,
 				57F26EA21AC9D784008A9E77 /* FortuneView.m in Sources */,
 			);
