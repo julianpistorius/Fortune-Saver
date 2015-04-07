@@ -74,20 +74,20 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 #pragma mark Colours
 
 - (NSColor *)textColour {
-    return [_screenSaverDefaults colourForKey:kTextColour];
+    return [self colourForKey:kTextColour];
 }
 
 - (void)setTextColour:(NSColor *)textColour {
-    [_screenSaverDefaults setColour:textColour forKey:kTextColour];
+    [self setColour:textColour forKey:kTextColour];
     [self notifyObservers];
 }
 
 - (NSColor *)attributionColour {
-    return [_screenSaverDefaults colourForKey:kAttributionColour];
+    return [self colourForKey:kAttributionColour];
 }
 
 - (void)setAttributionColour:(NSColor *)attributionColour {
-    [_screenSaverDefaults setColour:attributionColour forKey:kAttributionColour];
+    [self setColour:attributionColour forKey:kAttributionColour];
     [self notifyObservers];
 }
 
@@ -95,7 +95,7 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 
 - (NSFont *)textFont {
     if (!_textFont) {
-        _textFont = [_screenSaverDefaults fontForKey:kTextFont];
+        _textFont = [self fontForKey:kTextFont];
     }
     if (!_textFont) {
         _textFont = [NSFont systemFontOfSize:DEFAULT_FONT_SIZE];  // If the specified font isn't found, use one guaranteed to be there.
@@ -107,7 +107,7 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
     if(textFont == nil) { NSLog(@"Invalid text font set in preferences."); }
     if (textFont) {
         _textFont = textFont;
-        [_screenSaverDefaults setFont:_textFont forKey:kTextFont];
+        [self setFont:_textFont forKey:kTextFont];
         [self notifyObservers];
     }
 }
@@ -118,13 +118,13 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 
 - (void)setTextFontName:(NSString *)textFontName {
     [_screenSaverDefaults setObject:textFontName forKey:kTextFont];
-    _textFont = [_screenSaverDefaults fontForKey:kTextFont];
+    _textFont = [self fontForKey:kTextFont];
     [self notifyObservers];
 }
 
 - (NSFont *)attributionFont {
     if (!_attributionFont) {
-        _attributionFont = [_screenSaverDefaults fontForKey:kAttributionFont];
+        _attributionFont = [self fontForKey:kAttributionFont];
     }
     if (!_attributionFont) {
         _attributionFont = [NSFont systemFontOfSize:DEFAULT_FONT_SIZE];  // If the specified font isn't found, use one guaranteed to be there.
@@ -136,7 +136,7 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
     if(attributionFont == nil) { NSLog(@"Invalid attribution font set in preferences."); }
     if (attributionFont) {
         _attributionFont = attributionFont;
-        [_screenSaverDefaults setFont:_attributionFont forKey:kAttributionFont];
+        [self setFont:_attributionFont forKey:kAttributionFont];
         [self notifyObservers];
     }
 }
@@ -147,7 +147,7 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 
 - (void)setAttributionFontName:(NSString *)attributionFontName {
     [_screenSaverDefaults setObject:attributionFontName forKey:kAttributionFont];
-    _attributionFont = [_screenSaverDefaults fontForKey:kAttributionFont];
+    _attributionFont = [self fontForKey:kAttributionFont];
     [self notifyObservers];
 }
 
@@ -178,14 +178,24 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
     _observers = [NSMutableArray array];
     _screenSaverDefaults = [ScreenSaverDefaults defaultsForModuleWithName:self.bundleIdentifier];
     if (!_screenSaverDefaults) {  NSLog(@"Couldn't initialise screensaverDefaults"); }
-    [_screenSaverDefaults registerMyDefaults];
+    [self registerMyDefaults];
     
     return self;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"%@ <%@>", super.description, _screenSaverDefaults];
+}
 
 -(void)synchronise {
     [_screenSaverDefaults synchronize];
+}
+
+- (void)removeAll {
+    for (NSString *key in _screenSaverDefaults.dictionaryRepresentation.allKeys) {
+        [_screenSaverDefaults removeObjectForKey:key];
+    }
+    [self notifyObservers];
 }
 
 #pragma mark Observers
@@ -211,6 +221,56 @@ static const NSUInteger DEFAULT_FONT_SIZE = 0;
 
 - (NSString *)bundleIdentifier {
     return @"Patrick-Wallace.PWFortune";
+}
+
+
+- (void)registerMyDefaults {
+        // HACK: These are hard-coded to the view that I think looks 'best'. There is probably a better way of doing this.
+        // If they aren't around anymore, the various managers will substitute an ugly-but-visible alternative anyway.
+    [_screenSaverDefaults registerDefaults:@{kTextFont          : @"HelveticaNeue-Bold::48",
+                                             kAttributionFont   : @"Optima-Bold::36",
+                                             kTextColour        : [NSKeyedArchiver archivedDataWithRootObject:[NSColor magentaColor]],
+                                             kAttributionColour : [NSKeyedArchiver archivedDataWithRootObject:[NSColor blueColor   ]],
+                                             kFilterName        : @"Divide Blend",
+                                             kStyleName         : @"Green Gold",
+                                             kBackgroundName    : @"Green Glitter"}];
+    [_screenSaverDefaults synchronize];
+    
+        // Check it worked.
+    if( [self colourForKey:kAttributionColour] == nil) { NSLog(@"User defaults - Stored attribution colour came back as nil."); }
+}
+
+- (NSColor*) colourForKey:(NSString *)key {
+    NSData *data = [_screenSaverDefaults objectForKey:key];
+    NSColor *color = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    return color;
+}
+
+- (void) setColour:(NSColor *)colour forKey:(NSString *)key {
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:colour];
+    [_screenSaverDefaults setObject:data forKey:key];
+}
+
+-(NSFont *) fontForKey:(NSString *)key {
+    NSString *fontDescription = [_screenSaverDefaults stringForKey:key];
+    NSArray *array = [fontDescription componentsSeparatedByString:@"::"];
+    NSString *name = nil;
+    NSUInteger size = [NSFont systemFontSize];
+    name = array[0];
+    if (array.count >= 2) {
+        NSString *sizeStr = array[1];
+        size = sizeStr.integerValue;
+    }
+    
+    NSFont *font = [NSFont fontWithName:name size:size];
+    return font;
+}
+
+-(void) setFont:(NSFont *)font forKey:(NSString *)key {
+    NSString *name = font.fontName;
+    NSUInteger size = font.pointSize;
+    NSString *fontDescription = [NSString stringWithFormat:@"%@::%lu", name, size];
+    [_screenSaverDefaults setObject:fontDescription forKey:key];
 }
 
 @end

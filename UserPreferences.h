@@ -48,7 +48,13 @@
 
 #pragma mark Methods
 
+    /// Remove all the preferences set, returning the system to the default state.
+- (void)removeAll;
+
+    /// Writes out our changes to the disk.
 - (void)synchronise;
+
+#pragma mark Observers
 
 - (void)addObserver: (id<UserPreferencesObserver>) observer;
 - (void)removeObserver: (id<UserPreferencesObserver>) observer;

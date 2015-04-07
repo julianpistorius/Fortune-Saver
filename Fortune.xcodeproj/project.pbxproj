@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		57201A0F1ACD0DC40016F6ED /* Extensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 57201A0D1ACD0DC40016F6ED /* Extensions.h */; };
-		57201A101ACD0DC40016F6ED /* Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 57201A0E1ACD0DC40016F6ED /* Extensions.m */; };
 		57201A2D1AD0E9C30016F6ED /* MoveAndFade.h in Headers */ = {isa = PBXBuildFile; fileRef = 57201A2B1AD0E9C30016F6ED /* MoveAndFade.h */; };
 		57201A2E1AD0E9C30016F6ED /* MoveAndFade.m in Sources */ = {isa = PBXBuildFile; fileRef = 57201A2C1AD0E9C30016F6ED /* MoveAndFade.m */; };
 		57201A341AD0F4890016F6ED /* ExpandAndFade.h in Headers */ = {isa = PBXBuildFile; fileRef = 57201A321AD0F4890016F6ED /* ExpandAndFade.h */; };
@@ -48,8 +46,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		57201A0D1ACD0DC40016F6ED /* Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Extensions.h; sourceTree = "<group>"; };
-		57201A0E1ACD0DC40016F6ED /* Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Extensions.m; sourceTree = "<group>"; };
 		57201A2B1AD0E9C30016F6ED /* MoveAndFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveAndFade.h; sourceTree = "<group>"; };
 		57201A2C1AD0E9C30016F6ED /* MoveAndFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoveAndFade.m; sourceTree = "<group>"; };
 		57201A311AD0E9F20016F6ED /* Transition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Transition.h; sourceTree = "<group>"; };
@@ -129,8 +125,6 @@
 			children = (
 				57201A381AD101BD0016F6ED /* BackgroundManager.h */,
 				57201A391AD101BD0016F6ED /* BackgroundManager.m */,
-				57201A0D1ACD0DC40016F6ED /* Extensions.h */,
-				57201A0E1ACD0DC40016F6ED /* Extensions.m */,
 				57201A3C1AD207310016F6ED /* FilterManager.h */,
 				57201A3D1AD207310016F6ED /* FilterManager.m */,
 				57F26E9A1AC9D784008A9E77 /* FortuneView.h */,
@@ -187,7 +181,6 @@
 				57F26EAA1ACCCC48008A9E77 /* UserPreferences.h in Headers */,
 				57201A2D1AD0E9C30016F6ED /* MoveAndFade.h in Headers */,
 				57F26EA11AC9D784008A9E77 /* FortuneView.h in Headers */,
-				57201A0F1ACD0DC40016F6ED /* Extensions.h in Headers */,
 				57F26EB81ACCF492008A9E77 /* PreferencesWindowController.h in Headers */,
 				57F26EA31AC9D784008A9E77 /* NullAction.h in Headers */,
 				57F26EAE1ACCCDBC008A9E77 /* Quote.h in Headers */,
@@ -287,7 +280,6 @@
 				57F26EAB1ACCCC48008A9E77 /* UserPreferences.m in Sources */,
 				57201A2E1AD0E9C30016F6ED /* MoveAndFade.m in Sources */,
 				57F26EB91ACCF492008A9E77 /* PreferencesWindowController.m in Sources */,
-				57201A101ACD0DC40016F6ED /* Extensions.m in Sources */,
 				57201A351AD0F4890016F6ED /* ExpandAndFade.m in Sources */,
 				57201A3B1AD101BD0016F6ED /* BackgroundManager.m in Sources */,
 				57201A3F1AD207310016F6ED /* FilterManager.m in Sources */,

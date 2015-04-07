@@ -33,6 +33,10 @@ typedef NS_ENUM(NSUInteger, FontSelectState) {
     NSFont *_selectedTextFont, *_selectedAttributionFont;
     FontSelectState _fontSelectState;
     
+#ifdef DEBUG
+    BOOL _removeAllPreferences;
+#endif
+    
     BackgroundManager *_backgroundManager;
     FilterManager *_filterManager;
     StyleManager *_styleManager;
@@ -82,6 +86,10 @@ static NSWindow * loadNib(id owner) {
     NSNotificationCenter *notificationCentre = [NSNotificationCenter defaultCenter];
     [notificationCentre addObserver:self selector:@selector(windowWillBeginSheet:) name:NSWindowWillBeginSheetNotification object:nil];
     
+#ifdef DEBUG
+    _removeAllPreferences = NO;
+#endif
+    
     return self;
 }
 
@@ -97,6 +105,11 @@ static NSWindow * loadNib(id owner) {
 }
 
 - (void)windowWillBeginSheet: (NSNotification*)notification {
+
+#ifdef DEBUG
+    _removeAllPreferences = NO;
+#endif
+
     [self populateBackgroundsButton];
     [self populateStylesButton];
     [self populateFiltersButton];
@@ -126,6 +139,13 @@ static NSWindow * loadNib(id owner) {
 
 
 - (void)savePreferences {
+#ifdef DEBUG
+    if (_removeAllPreferences) {
+        [self.userPreferences removeAll];
+        [self.userPreferences synchronise];
+        return;
+    }
+#endif
     [self.userPreferences setTextColour:textColour.color];
     [self.userPreferences setAttributionColour:attributionColour.color];
     
@@ -216,7 +236,10 @@ static NSWindow * loadNib(id owner) {
     }
 }
 
-
+#ifdef DEBUG
+    /// If the user clicks the + button next to the style list, this copies the current settings into a new style object.
+    /// This is for debug only -currently the only style directory is in the bundle which will be overwritten whenever we update the screensaver.
+    /// So this is for development use only.
 - (IBAction)addStyle:(NSButton *)sender {
     NSString *newStyleName = nil;
     for (NSUInteger i = 1, c = 100; i < c; i++) {
@@ -237,6 +260,12 @@ static NSWindow * loadNib(id owner) {
     _styleManager.selectedStyleName = newStyleName;
     [self populateStylesButton];
 }
+
+    /// Another use for the + button during development. Remove all values from the user defaults so that I can see what it looks like on a clean startup.
+- (IBAction)removeAllPreferences:(NSButton *)sender {
+    _removeAllPreferences = YES;
+}
+#endif
 
 #pragma mark Button menu support
 
