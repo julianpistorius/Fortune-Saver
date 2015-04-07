@@ -50,7 +50,6 @@ typedef NS_ENUM(NSUInteger, FontSelectState) {
 
 
 @implementation PreferencesWindowController
-@synthesize userPreferences = _userPreferences;
 
 static NSWindow * loadNib(id owner) {
     NSArray *nibObjects;

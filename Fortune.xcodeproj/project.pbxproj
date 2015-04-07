@@ -35,16 +35,6 @@
 		57F26EB91ACCF492008A9E77 /* PreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 57F26EB71ACCF492008A9E77 /* PreferencesWindowController.m */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		57F26EEB1ACD00EA008A9E77 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 57F26EE61ACD00EA008A9E77 /* TestPreferences.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 57F26EC31ACD00E9008A9E77;
-			remoteInfo = TestPreferences;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		57201A2B1AD0E9C30016F6ED /* MoveAndFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveAndFade.h; sourceTree = "<group>"; };
 		57201A2C1AD0E9C30016F6ED /* MoveAndFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoveAndFade.m; sourceTree = "<group>"; };
@@ -76,7 +66,6 @@
 		57F26EB01ACCE3E7008A9E77 /* PreferencesPanel.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesPanel.xib; sourceTree = "<group>"; };
 		57F26EB61ACCF492008A9E77 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
 		57F26EB71ACCF492008A9E77 /* PreferencesWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesWindowController.m; sourceTree = "<group>"; };
-		57F26EE61ACD00EA008A9E77 /* TestPreferences.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TestPreferences.xcodeproj; path = TestPreferences/TestPreferences/TestPreferences.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,7 +93,6 @@
 		57F26E811AC9D711008A9E77 = {
 			isa = PBXGroup;
 			children = (
-				57F26EE61ACD00EA008A9E77 /* TestPreferences.xcodeproj */,
 				57F26EA71ACCC983008A9E77 /* Notes.md */,
 				57F26EB01ACCE3E7008A9E77 /* PreferencesPanel.xib */,
 				57F26E8D1AC9D711008A9E77 /* Fortune */,
@@ -157,14 +145,6 @@
 				57F26E8F1AC9D711008A9E77 /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		57F26EE71ACD00EA008A9E77 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				57F26EEC1ACD00EA008A9E77 /* TestPreferences.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -232,28 +212,12 @@
 			mainGroup = 57F26E811AC9D711008A9E77;
 			productRefGroup = 57F26E8C1AC9D711008A9E77 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 57F26EE71ACD00EA008A9E77 /* Products */;
-					ProjectRef = 57F26EE61ACD00EA008A9E77 /* TestPreferences.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				57F26E8A1AC9D711008A9E77 /* Fortune */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		57F26EEC1ACD00EA008A9E77 /* TestPreferences.app */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.application;
-			path = TestPreferences.app;
-			remoteRef = 57F26EEB1ACD00EA008A9E77 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		57F26E891AC9D711008A9E77 /* Resources */ = {
