@@ -7,7 +7,6 @@
 //
 
 #import "UserPreferences.h"
-#import "Extensions.h"
 @import ScreenSaver;
 
 static const NSUInteger DEFAULT_FONT_SIZE = 0;
