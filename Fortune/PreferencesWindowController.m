@@ -174,7 +174,7 @@ static NSWindow * loadNib(id owner) {
 #pragma mark Font Management
 
 - (void)setTextInButton: (NSButton*)button forFont: (NSFont *)font {
-    NSString *title = [NSString stringWithFormat:@"%@ %lu pt", font.fontName, (NSUInteger)font.pointSize];
+    NSString *title = [NSString stringWithFormat:@"%@ %lu", (font.displayName ? font.displayName : font.fontName), (NSUInteger)font.pointSize];
     button.title = button.alternateTitle = title;
 }
 
@@ -192,6 +192,10 @@ static NSWindow * loadNib(id owner) {
             NSLog(@"changeFont: called with invalid state %lu", _fontSelectState);
             break;
     }
+}
+
+    // Do-nothing method sent by the font manager to tell large text fields with embedded attributes that they need to change.
+- (void)changeAttributes:(NSFontManager *)sender {
 }
 
 #pragma mark Interface Builder Actions
@@ -213,6 +217,7 @@ static NSWindow * loadNib(id owner) {
     fontManager.target = self;
     _fontSelectState = SELECTING_TEXT_FONT;
     _selectedTextFont = self.userPreferences.textFont;
+    [fontManager setSelectedFont:_selectedTextFont isMultiple:NO];
     NSFontPanel *fontPanel = [fontManager fontPanel:YES];
     [fontPanel makeKeyAndOrderFront:self];
 }
@@ -222,6 +227,7 @@ static NSWindow * loadNib(id owner) {
     fontManager.target = self;
     _fontSelectState = SELECTING_ATTRIBUTION_FONT;
     _selectedAttributionFont = self.userPreferences.attributionFont;
+    [fontManager setSelectedFont:_selectedAttributionFont isMultiple:NO];
     NSFontPanel *fontPanel = [fontManager fontPanel:YES];
     [fontPanel makeKeyAndOrderFront:self];
 }
