@@ -23,15 +23,15 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
 @interface FortuneView () {
     CALayer         *_backgroundLayer;
     CATextLayer     *_textLayer;
-    NSArray         *_allQuotes;  // Of type Quote
     NSFont          *_textFont;
     NSFont          *_attributionFont;
-    UserPreferences *_userPreferences;
     NSUInteger _ticksToChangeQuote;
     BOOL       _firstAnimation;
     id<Transition> _moveAnimation;
     id<Transition> _textReplaceAnimation;
     
+    UserPreferences *_userPreferences;
+    Quotations *_allQuotes;
     PreferencesWindowController *_prefsController;
     BackgroundManager *_backgroundManager;
     FilterManager *_filterManager;
@@ -39,7 +39,6 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
 
 
 #pragma mark Private properties for readability.
-@property (nonatomic, readonly) Quote *randomQuote;
 @property (nonatomic, readonly) NSAttributedString *randomAttributedQuoteString;
 @end
 
@@ -66,6 +65,7 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
         [_backgroundManager addObserver:self];
         _filterManager = [FilterManager sharedManager];
         [_filterManager addObserver:self];
+        _allQuotes = [Quotations sharedInstance];
         
             // Create the font we'll use for text depending if we're drawing in the preview window or the screen.
         _textFont = _attributionFont = nil;
@@ -263,29 +263,9 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
     }
 }
 
-
-
-    /// Produce a random quote, loading the quotes file if necessary.
-- (Quote *)randomQuote {
-    if (!_allQuotes) {
-        NSURL *quotesURL = _userPreferences.quotesFileURL;
-        if (!quotesURL) {
-            quotesURL = _userPreferences.fallbackQuotesFileURL;
-        }
-        _allQuotes = [Quote loadQuotes:quotesURL];
-    }
-    if (_allQuotes.count > 0) {
-        NSUInteger randomValue = SSRandomIntBetween(0, (int)_allQuotes.count - 1);
-        return _allQuotes[randomValue];
-    }
-        // Return a quote with explanatory text so the user can tell what went wrong.
-    return [[Quote alloc] initWithText:@"There are no quotes to display" attribution:nil];
-}
-
-
     /// Create and return a random attributed string containing the text and attributions in their appropriate colours.
 - (NSAttributedString *)randomAttributedQuoteString {
-    Quote *quote = self.randomQuote;
+    Quote *quote = _allQuotes.randomQuote;
     NSString *fullTextString = [NSString stringWithFormat:@"%@\n", quote.text];
     NSDictionary *textStringAttributes = @{ NSFontAttributeName : _textFont,
                                             NSForegroundColorAttributeName : _userPreferences.textColour };
