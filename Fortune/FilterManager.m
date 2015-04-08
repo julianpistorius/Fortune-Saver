@@ -70,10 +70,13 @@ static FilterManager *singleton = nil;
 #pragma mark Private methods
 
 - (NSDictionary *)loadFilterNames {
+    NSString *const BLEND = @"Blend";
     NSMutableDictionary *items = [NSMutableDictionary dictionary];
     for (NSString *filterName in [CIFilter filterNamesInCategory:kCICategoryCompositeOperation]) {
         NSString *title = [self titleFromCIFilterName:filterName];
-        [items setObject:filterName forKey:title];
+        if ([title hasSuffix:BLEND]) {
+            [items setObject:filterName forKey:title];
+        }
     }
     return items;
 }

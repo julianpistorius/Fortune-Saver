@@ -1,7 +1,7 @@
 # TODO
 - [ ] Add parameters to the Quartz file so I can change them in the preferences.
 - [ ] Change the text-moving animation so that it is clearer when the text is moving vs changing.
-- [ ] Remove all the Core Image filters which don't end in "Blend".
+- [x] Remove all the Core Image filters which don't end in "Blend".
 - [x] Show the user's specified font in the Preview window.
 - [x] Create an animation to move the text across.
 - [x] Add a preferences pane.
