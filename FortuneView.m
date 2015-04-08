@@ -10,7 +10,6 @@
 @import AppKit;
 #import "FortuneView.h"
 #import "NullAction.h"
-#import "UserPreferences.h"
 #import "Quote.h"
 #import "PreferencesWindowController.h"
 #import "MoveAndFade.h"
@@ -26,7 +25,8 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
     NSFont          *_textFont;
     NSFont          *_attributionFont;
     NSUInteger _ticksToChangeQuote;
-    BOOL       _firstAnimation;
+    BOOL       _firstAnimation, _isPreview;
+    NSString *_oldTextFontName, *_oldAttributionFontName;
     id<Transition> _moveAnimation;
     id<Transition> _textReplaceAnimation;
     
@@ -58,7 +58,9 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
         
         _ticksToChangeQuote = TICKS_BEFORE_CHANGING_QUOTE;
         _userPreferences = [UserPreferences sharedPreferences];
+        [_userPreferences addObserver:self];
         _firstAnimation = YES;
+        _isPreview = isPreview;
         _moveAnimation = [[MoveAndFade alloc] init];
         _textReplaceAnimation = [[ExpandAndFade alloc] init];
         _backgroundManager = [BackgroundManager sharedManager];
@@ -67,19 +69,25 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
         [_filterManager addObserver:self];
         _allQuotes = [Quotations sharedInstance];
         
-            // Create the font we'll use for text depending if we're drawing in the preview window or the screen.
-        _textFont = _attributionFont = nil;
-        if (isPreview) { // Use the default system font for the preview window.
-            _textFont = [NSFont systemFontOfSize:[NSFont systemFontSize]];
-            _attributionFont = _textFont;
-        } else { // Otherwise get the font from the preferences.
-            _textFont = _userPreferences.textFont;
-            _attributionFont = _userPreferences.attributionFont;
-        }
-        if (!_textFont) { NSLog(@"Font %@ not found in the system preferences", _userPreferences.textFontDetails); }
-        if (!_attributionFont) { NSLog(@"Font %@ not found in the system preferences", _userPreferences.attributionFontDetails); }
+        [self createFonts];
     }
     return self;
+}
+
+- (void)createFonts {
+        // Create the font we'll use for text depending if we're drawing in the preview window or the screen.
+    _textFont = _attributionFont = nil;
+    if (_isPreview) { // Use the default system font for the preview window.
+        _textFont = [NSFont fontWithName:_userPreferences.textFont.fontName size:[NSFont systemFontSize]];
+        _attributionFont = [NSFont fontWithName:_userPreferences.attributionFont.fontName size:[NSFont systemFontSize]];
+    } else { // Otherwise get the font from the preferences.
+        _textFont = _userPreferences.textFont;
+        _attributionFont = _userPreferences.attributionFont;
+    }
+    _oldTextFontName = _userPreferences.textFontName;
+    _oldAttributionFontName = _userPreferences.attributionFontName;
+    if (!_textFont) { NSLog(@"Font %@ not found in the system preferences", _userPreferences.textFontDetails); }
+    if (!_attributionFont) { NSLog(@"Font %@ not found in the system preferences", _userPreferences.attributionFontDetails); }
 }
 
 - (void)dealloc {
@@ -159,6 +167,18 @@ static const NSUInteger TICKS_BEFORE_CHANGING_QUOTE = 3; // Keep each message ar
 
 - (void)filterManagerSelectionChanged:(FilterManager *)manager {
     [self replaceFilter:[manager filterForName:manager.selectedFilterName]];
+}
+
+#pragma mark UserPreferencesObserver
+
+-(void)userPreferencesChanged:(UserPreferences *)userPreferences {
+        // Just need to track the fonts here. Everything else is handled by the appropriate manager.
+    BOOL updateText = !(   [userPreferences.textFontName isEqualToString:_oldTextFontName]
+                        || [userPreferences.attributionFontName isEqualToString:_oldAttributionFontName]);
+    if (updateText) {
+     [self createFonts];
+    _textLayer.string = [self randomAttributedQuoteString];
+    }
 }
 
 #pragma mark Private methods.
