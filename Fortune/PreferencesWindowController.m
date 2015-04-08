@@ -117,6 +117,9 @@ static NSWindow * loadNib(id owner) {
     [NSColorPanel sharedColorPanel].showsAlpha = YES;
     
     [self loadPreferences];
+    
+    BOOL customEnabled = [stylesButton.title isEqualToString:_styleManager.customStyleName];
+    [self enableCustomControls:customEnabled];
 }
 
 - (void)loadPreferences {
@@ -234,11 +237,15 @@ static NSWindow * loadNib(id owner) {
 
 - (IBAction)changeStyle:(NSPopUpButton *)sender {
     BOOL customEnabled = [sender.title isEqualToString:_styleManager.customStyleName];
-    backgroundsButton.enabled = filtersButton.enabled = textColour.enabled = attributionColour.enabled = textFontButton.enabled = attributionFontButton.enabled = customEnabled;
+    [self enableCustomControls:customEnabled];
     if (!customEnabled) {
         [_styleManager applyStyleNamed:sender.title];
         [self loadPreferences]; // Reinitialize the GUI from the updated preferences.
     }
+}
+
+- (void)enableCustomControls: (BOOL)customEnabled {
+    backgroundsButton.enabled = filtersButton.enabled = textColour.enabled = attributionColour.enabled = textFontButton.enabled = attributionFontButton.enabled = customEnabled;
 }
 
 #ifdef DEBUG
