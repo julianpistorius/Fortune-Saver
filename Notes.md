@@ -3,6 +3,7 @@
 - [x] Change the text-moving animation so that it is clearer when the text is moving vs changing.
 - [x] Remove all the Core Image filters which don't end in "Blend".
 - [x] Show the user's specified font in the Preview window.
+- [x] Disable the custom controls on screen popup if the style is not Custom.
 - [x] Create an animation to move the text across.
 - [x] Add a preferences pane.
 - [x] Add a list of the Core Image filters that can be applied.

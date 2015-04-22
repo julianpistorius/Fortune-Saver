@@ -96,9 +96,15 @@ static Quotations *instance = nil;
     for (NSXMLElement *quoteElement in allQuoteElements) {
         NSString *text = nil, *attribution = nil;
         for (NSXMLNode *node in quoteElement.children) {
-            if      ([node.name isEqualToString:@"Text"]       ) { text        = node.stringValue; }
-            else if ([node.name isEqualToString:@"Attribution"]) { attribution = node.stringValue; }
-            else                                                 { NSLog(@"Node %@ is unrecognised.", node); }
+            if ([node.name isEqualToString:@"Text"]) {
+                text = [node.stringValue stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            }
+            else if ([node.name isEqualToString:@"Attribution"]) {
+                attribution = [node.stringValue stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            }
+            else {
+                NSLog(@"Node %@ is unrecognised.", node);
+            }
         }
         Quote *quote = [[Quote alloc] initWithText:text attribution:attribution];
         [allQuotes addObject:quote];
