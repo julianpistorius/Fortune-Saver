@@ -16,7 +16,7 @@ This consists of a single element called “Quotes”, containing an arbitrary n
 <Quotes>
   <Quote>
     <Text>This is the text of the first quote.
-Newlines will be preserved.”</Text>
+Newlines will be preserved.</Text>
     <Attribution>This is the first quote author.</Attribution>
   </Quote>
   <Quote>
